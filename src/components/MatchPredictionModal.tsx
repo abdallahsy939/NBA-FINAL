@@ -474,9 +474,9 @@ export function MatchPredictionModal({
 
                 {/* ============ SECTION 4: MATH BREAKDOWN ============ */}
                 {prediction.math_breakdown && (
-                  <Card className="border-blue-500/20">
+                  <Card className="border-yellow-500/30 bg-gradient-to-br from-yellow-950/20 to-slate-900/30">
                     <CardHeader className="pb-2 pt-3 px-4">
-                      <CardTitle className="text-xs flex items-center gap-2">
+                      <CardTitle className="text-xs flex items-center gap-2 text-yellow-300">
                         <Zap className="h-3.5 w-3.5 text-yellow-400" />
                         Impact Analysis
                       </CardTitle>
