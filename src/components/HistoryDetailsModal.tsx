@@ -147,11 +147,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
       <div className="grid grid-cols-4 gap-2 p-4 bg-slate-800/30">
         {/* PTS Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            PTS
+          <div className="text-[10px] font-bold uppercase text-amber-400 mb-2 text-center tracking-wider bg-amber-950/30 py-1.5 rounded-md border border-amber-500/20">
+            🏀 PTS
           </div>
           <StatCell
-            stat="Proj"
+            stat="PTS"
             projected={projStats.PTS}
             real={realStats?.PTS ?? null}
             isFinished={isFinished}
@@ -162,7 +162,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.PTS > projStats.PTS ? "text-emerald-400" :
                 realStats && realStats.PTS < projStats.PTS ? "text-red-400" :
-                "text-slate-400"
+                "text-amber-300"
               }`}>
                 {realStats ? realStats.PTS.toFixed(0) : "-"}
               </p>
@@ -172,11 +172,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
 
         {/* REB Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            REB
+          <div className="text-[10px] font-bold uppercase text-emerald-400 mb-2 text-center tracking-wider bg-emerald-950/30 py-1.5 rounded-md border border-emerald-500/20">
+            📦 REB
           </div>
           <StatCell
-            stat="Proj"
+            stat="REB"
             projected={projStats.REB}
             real={realStats?.REB ?? null}
             isFinished={isFinished}
@@ -187,7 +187,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.REB > projStats.REB ? "text-emerald-400" :
                 realStats && realStats.REB < projStats.REB ? "text-red-400" :
-                "text-slate-400"
+                "text-emerald-300"
               }`}>
                 {realStats ? realStats.REB.toFixed(0) : "-"}
               </p>
@@ -197,11 +197,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
 
         {/* AST Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            AST
+          <div className="text-[10px] font-bold uppercase text-cyan-400 mb-2 text-center tracking-wider bg-cyan-950/30 py-1.5 rounded-md border border-cyan-500/20">
+            🎯 AST
           </div>
           <StatCell
-            stat="Proj"
+            stat="AST"
             projected={projStats.AST}
             real={realStats?.AST ?? null}
             isFinished={isFinished}
@@ -212,7 +212,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.AST > projStats.AST ? "text-emerald-400" :
                 realStats && realStats.AST < projStats.AST ? "text-red-400" :
-                "text-slate-400"
+                "text-cyan-300"
               }`}>
                 {realStats ? realStats.AST.toFixed(0) : "-"}
               </p>
@@ -222,11 +222,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
 
         {/* PRA Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            PRA
+          <div className="text-[10px] font-bold uppercase text-purple-400 mb-2 text-center tracking-wider bg-purple-950/30 py-1.5 rounded-md border border-purple-500/20">
+            ✨ PRA
           </div>
           <StatCell
-            stat="Proj"
+            stat="PRA"
             projected={projStats.PRA}
             real={realStats?.PRA ?? null}
             isFinished={isFinished}
@@ -237,7 +237,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.PRA > projStats.PRA ? "text-emerald-400" :
                 realStats && realStats.PRA < projStats.PRA ? "text-red-400" :
-                "text-slate-400"
+                "text-purple-300"
               }`}>
                 {realStats ? realStats.PRA.toFixed(0) : "-"}
               </p>
