@@ -52,6 +52,8 @@ export function PlayerDetailsModal({
   const [selectedStat, setSelectedStat] = useState<StatCategory>("PTS");
   const [bookmakerLine, setBookmakerLine] = useState("");
   const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [isSavingPrediction, setIsSavingPrediction] = useState(false);
+  const { toast } = useToast();
 
   const projection = getProjectionValue(player, selectedStat);
 
