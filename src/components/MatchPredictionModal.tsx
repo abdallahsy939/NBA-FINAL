@@ -29,7 +29,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { nbaApi, TodayGame, Player } from "@/services/nbaApi";
+import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest } from "@/services/nbaApi";
 import {
   Brain,
   Zap,
@@ -37,6 +37,7 @@ import {
   ChevronsUpDown,
   AlertCircle,
   ChevronRight,
+  BookmarkCheck,
 } from "lucide-react";
 import { getTeamCode } from "@/lib/teamMapping";
 import {
@@ -45,6 +46,7 @@ import {
 } from "@/lib/fatigueUtils";
 import { BlowoutBar } from "@/components/BlowoutBar";
 import { ShootingBattleCard } from "@/components/ShootingBattleCard";
+import { toast } from "sonner";
 
 interface MatchPredictionModalProps {
   open: boolean;
@@ -67,6 +69,7 @@ export function MatchPredictionModal({
   const [homePopoverOpen, setHomePopoverOpen] = useState(false);
   const [awayPopoverOpen, setAwayPopoverOpen] = useState(false);
   const [failedLogos, setFailedLogos] = useState<Set<string>>(new Set());
+  const [isSaving, setIsSaving] = useState(false);
 
   const homeTeamId = game ? getTeamCode(game.homeTeam) : "";
   const awayTeamId = game ? getTeamCode(game.awayTeam) : "";
@@ -148,6 +151,69 @@ export function MatchPredictionModal({
     },
     [awayMissingPlayers]
   );
+
+  const handleSaveMatch = useCallback(async () => {
+    if (!game) return;
+
+    try {
+      setIsSaving(true);
+
+      const homeTeamIdNum = typeof game.homeTeamId === "string" ? parseInt(game.homeTeamId) : game.homeTeamId;
+      const awayTeamIdNum = typeof game.awayTeamId === "string" ? parseInt(game.awayTeamId) : game.awayTeamId;
+
+      if (!homeTeamIdNum || !awayTeamIdNum) {
+        toast.error("Team IDs not available");
+        return;
+      }
+
+      const homeMissingPlayerIds = homeMissingPlayers.map((p) => p.id);
+      const awayMissingPlayerIds = awayMissingPlayers.map((p) => p.id);
+
+      const fullMatchData = await nbaApi.getFullMatchPredictionForSave(
+        homeTeamId,
+        awayTeamId,
+        homeMissingPlayerIds,
+        awayMissingPlayerIds
+      );
+
+      const formatPlayerStats = (player: any): PlayerStatSave => {
+        return {
+          player_id: player.player_id,
+          name: player.player,
+          team: player.team,
+          predicted_stats: {
+            PTS: player.predicted_stats?.PTS || 0,
+            REB: player.predicted_stats?.REB || 0,
+            AST: player.predicted_stats?.AST || 0,
+            MIN: player.predicted_stats?.MIN || 0,
+            PRA: player.advanced_metrics_projected?.PRA || 0,
+          },
+        };
+      };
+
+      const saveRequest: MatchSaveRequest = {
+        game_id: game.gameId,
+        game_date: game.gameDate,
+        home_team: game.homeTeam,
+        home_team_id: homeTeamIdNum,
+        away_team: game.awayTeam,
+        away_team_id: awayTeamIdNum,
+        home_players: fullMatchData.home_players.map(formatPlayerStats),
+        away_players: fullMatchData.away_players.map(formatPlayerStats),
+        winner_prediction: prediction?.predicted_winner || game.homeTeam,
+      };
+
+      await nbaApi.saveMatchPrediction(saveRequest);
+
+      toast.success("Match & Projections saved to History");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to save match";
+      toast.error(errorMessage);
+      console.error("Save match error:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [game, homeTeamId, awayTeamId, homeMissingPlayers, awayMissingPlayers, prediction]);
 
   const getConfidenceBadgeColor = (level: string | undefined | null) => {
     if (!level) return "bg-gray-500/20 text-gray-400 border-gray-500/30";
@@ -789,13 +855,24 @@ export function MatchPredictionModal({
             variant="outline"
             size="sm"
             className="flex-1 border-blue-500/30 hover:bg-blue-500/10"
+            disabled={isSaving}
           >
             <Zap className="h-3.5 w-3.5 mr-2" />
             Refresh
           </Button>
           <Button
+            onClick={handleSaveMatch}
+            size="sm"
+            disabled={isSaving || !prediction}
+            className="flex-1 bg-gradient-to-r from-emerald-600/80 to-green-600/80 hover:from-emerald-500 hover:to-green-500 text-white border-0"
+          >
+            <BookmarkCheck className="h-3.5 w-3.5 mr-2" />
+            {isSaving ? "Saving..." : "Save Analysis"}
+          </Button>
+          <Button
             onClick={() => onOpenChange(false)}
             size="sm"
+            disabled={isSaving}
             className="flex-1 bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500"
           >
             Close

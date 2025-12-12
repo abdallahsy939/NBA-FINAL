@@ -380,6 +380,31 @@ export interface PredictionRecord {
   status: "pending" | "completed";
 }
 
+export interface PlayerStatSave {
+  player_id: number;
+  name: string;
+  team: string;
+  predicted_stats: {
+    PTS: number;
+    REB: number;
+    AST: number;
+    MIN: number;
+    PRA: number;
+  };
+}
+
+export interface MatchSaveRequest {
+  game_id: string;
+  game_date: string;
+  home_team: string;
+  home_team_id: number;
+  away_team: string;
+  away_team_id: number;
+  home_players: PlayerStatSave[];
+  away_players: PlayerStatSave[];
+  winner_prediction: string;
+}
+
 export const nbaApi = {
   // CORRECTION MAJEURE ICI : Extraction de .games
   // Renommé en getGames30h pour matcher Home.tsx
@@ -594,6 +619,34 @@ export const nbaApi = {
   async getPredictionHistory(): Promise<PredictionRecord[]> {
     const response = await fetch(`${API_BASE_URL}/predictions/history`);
     if (!response.ok) throw new Error("Failed to fetch prediction history");
+    return response.json();
+  },
+
+  async saveMatchPrediction(data: MatchSaveRequest): Promise<{ success: boolean; message?: string; id?: number }> {
+    const response = await fetch(`${API_BASE_URL}/predictions/save-match`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to save match prediction");
+    return response.json();
+  },
+
+  async getFullMatchPredictionForSave(
+    homeId: string | number,
+    awayId: string | number,
+    homeAbsent: number[] = [],
+    awayAbsent: number[] = []
+  ): Promise<FullMatchPrediction> {
+    const params = new URLSearchParams();
+    homeAbsent.forEach(id => params.append("home_absent", id.toString()));
+    awayAbsent.forEach(id => params.append("away_absent", id.toString()));
+
+    const queryString = params.toString() ? `?${params.toString()}` : "";
+    const response = await fetch(`${API_BASE_URL}/predict/full-match/${homeId}/${awayId}${queryString}`);
+    if (!response.ok) throw new Error("Failed to fetch full match prediction");
     return response.json();
   },
 };
