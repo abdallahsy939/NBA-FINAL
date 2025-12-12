@@ -614,9 +614,9 @@ export function MatchPredictionModal({
                 )}
 
                 {/* ============ SECTION 6: SIMULATION CONTROL ============ */}
-                <Card className="border-blue-500/20">
+                <Card className="border-blue-500/30 bg-gradient-to-br from-blue-950/20 to-slate-900/30">
                   <CardHeader className="pb-2 pt-3 px-4">
-                    <CardTitle className="text-xs">Simulation Control</CardTitle>
+                    <CardTitle className="text-xs text-blue-300">Simulation Control</CardTitle>
                   </CardHeader>
                   <CardContent className="px-4 pb-4 space-y-4">
                     <div className="grid grid-cols-2 gap-3">
