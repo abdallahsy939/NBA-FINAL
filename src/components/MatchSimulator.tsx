@@ -47,12 +47,17 @@ export function MatchSimulator({
   awayAbsentPlayerIds: propAwayAbsentPlayerIds,
   onHomeAbsentPlayersChange,
   onAwayAbsentPlayersChange,
+  gameId,
+  gameDate,
+  homeTeam,
+  awayTeam,
 }: MatchSimulatorProps) {
   const [localHomeAbsentPlayerIds, setLocalHomeAbsentPlayerIds] = useState<number[]>([]);
   const [localAwayAbsentPlayerIds, setLocalAwayAbsentPlayerIds] = useState<number[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerFullPrediction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTeam, setModalTeam] = useState<"home" | "away">("home");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Use prop values if provided, otherwise use local state
   const homeAbsentPlayerIds = propHomeAbsentPlayerIds ?? localHomeAbsentPlayerIds;
