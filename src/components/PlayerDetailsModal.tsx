@@ -516,6 +516,19 @@ export function PlayerDetailsModal({
             )}
           </div>
         </div>
+
+        {/* Track Prediction Button - Footer */}
+        <div className="mt-8 pt-6 border-t border-slate-700/50">
+          <Button
+            onClick={handleTrackPrediction}
+            disabled={isSavingPrediction}
+            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold py-3 h-12"
+            size="lg"
+          >
+            <Save className="h-5 w-5 mr-2" />
+            {isSavingPrediction ? "Saving..." : "Track Prediction"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
