@@ -1,9 +1,10 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { nbaApi, InteractiveMatchPrediction, PlayerFullPrediction } from "@/services/nbaApi";
+import { nbaApi, InteractiveMatchPrediction, PlayerFullPrediction, PlayerStatSave, MatchSaveRequest } from "@/services/nbaApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -18,8 +19,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircle, Flame, AlertTriangle, Info } from "lucide-react";
+import { AlertCircle, Flame, AlertTriangle, Info, BookmarkCheck, Zap } from "lucide-react";
 import { PlayerDetailsModal } from "./PlayerDetailsModal";
+import { toast } from "sonner";
 
 interface MatchSimulatorProps {
   homeTeamId: string;
@@ -30,6 +32,10 @@ interface MatchSimulatorProps {
   awayAbsentPlayerIds?: number[];
   onHomeAbsentPlayersChange?: (ids: number[]) => void;
   onAwayAbsentPlayersChange?: (ids: number[]) => void;
+  gameId?: string;
+  gameDate?: string;
+  homeTeam?: string;
+  awayTeam?: string;
 }
 
 export function MatchSimulator({
@@ -41,12 +47,17 @@ export function MatchSimulator({
   awayAbsentPlayerIds: propAwayAbsentPlayerIds,
   onHomeAbsentPlayersChange,
   onAwayAbsentPlayersChange,
+  gameId,
+  gameDate,
+  homeTeam,
+  awayTeam,
 }: MatchSimulatorProps) {
   const [localHomeAbsentPlayerIds, setLocalHomeAbsentPlayerIds] = useState<number[]>([]);
   const [localAwayAbsentPlayerIds, setLocalAwayAbsentPlayerIds] = useState<number[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerFullPrediction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTeam, setModalTeam] = useState<"home" | "away">("home");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Use prop values if provided, otherwise use local state
   const homeAbsentPlayerIds = propHomeAbsentPlayerIds ?? localHomeAbsentPlayerIds;
@@ -128,6 +139,62 @@ export function MatchSimulator({
     },
     []
   );
+
+  const handleSaveMatch = useCallback(async () => {
+    if (!gameId || !gameDate || !homeTeam || !awayTeam || !displayPrediction) {
+      toast.error("Match information not available");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      const homeTeamIdNum = parseInt(homeTeamId);
+      const awayTeamIdNum = parseInt(awayTeamId);
+
+      if (!homeTeamIdNum || !awayTeamIdNum) {
+        toast.error("Team IDs not available");
+        return;
+      }
+
+      const formatPlayerStats = (player: PlayerFullPrediction): PlayerStatSave => {
+        return {
+          player_id: player.player_id,
+          name: player.player,
+          team: player.team,
+          predicted_stats: {
+            PTS: player.predicted_stats?.PTS || 0,
+            REB: player.predicted_stats?.REB || 0,
+            AST: player.predicted_stats?.AST || 0,
+            MIN: player.predicted_stats?.MIN || 0,
+            PRA: player.advanced_metrics_projected?.PRA || 0,
+          },
+        };
+      };
+
+      const saveRequest: MatchSaveRequest = {
+        game_id: gameId,
+        game_date: gameDate,
+        home_team: homeTeam,
+        home_team_id: homeTeamIdNum,
+        away_team: awayTeam,
+        away_team_id: awayTeamIdNum,
+        home_players: displayPrediction.home_players.map(formatPlayerStats),
+        away_players: displayPrediction.away_players.map(formatPlayerStats),
+        winner_prediction: homeTeam,
+      };
+
+      await nbaApi.saveMatchPrediction(saveRequest);
+
+      toast.success("Match & Projections saved to History");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to save match";
+      toast.error(errorMessage);
+      console.error("Save match error:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [gameId, gameDate, homeTeam, awayTeam, homeTeamId, awayTeamId, displayPrediction]);
 
   const hasHighBlowoutRisk = useMemo(() => {
     if (!displayPrediction) return false;
@@ -498,6 +565,18 @@ export function MatchSimulator({
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Footer with Save Button */}
+        <div className="border-t border-blue-500/20 px-6 py-4 bg-slate-900 flex gap-3">
+          <Button
+            onClick={handleSaveMatch}
+            disabled={isSaving || !displayPrediction}
+            className="flex-1 bg-gradient-to-r from-emerald-600/80 to-green-600/80 hover:from-emerald-500 hover:to-green-500 text-white border-0"
+          >
+            <BookmarkCheck className="h-3.5 w-3.5 mr-2" />
+            {isSaving ? "Saving..." : "Save Analysis"}
+          </Button>
         </div>
       </div>
     </TooltipProvider>
