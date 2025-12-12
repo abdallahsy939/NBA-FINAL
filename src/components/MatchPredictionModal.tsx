@@ -590,9 +590,9 @@ export function MatchPredictionModal({
 
                 {/* ============ SECTION 5: CONTEXT & FATIGUE ============ */}
                 {prediction.context_analysis && (
-                  <Card className="border-blue-500/20">
+                  <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 to-slate-900/30">
                     <CardHeader className="pb-2 pt-3 px-4">
-                      <CardTitle className="text-xs">Context Analysis</CardTitle>
+                      <CardTitle className="text-xs text-emerald-300">Context Analysis</CardTitle>
                     </CardHeader>
                     <CardContent className="px-4 pb-4">
                       <div className="grid grid-cols-2 gap-3">
