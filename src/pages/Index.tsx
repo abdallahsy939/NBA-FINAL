@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Player } from "@/services/nbaApi";
 import { PlayerSearch } from "@/components/PlayerSearch";
 import { Scoreboard } from "@/components/Scoreboard";
 import { PlayerDashboard } from "@/components/PlayerDashboard";
 import { AppUpdatesModal } from "@/components/AppUpdatesModal";
-import { Zap, TrendingUp } from "lucide-react";
+import { Zap, TrendingUp, History as HistoryIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
