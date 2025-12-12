@@ -352,6 +352,34 @@ export interface ShootingBattleData {
   };
 }
 
+export interface PredictionPayload {
+  player_id: number;
+  player_name: string;
+  opponent_id: string;
+  game_date: string;
+  predicted_stats: {
+    [key: string]: number;
+  };
+  context: string;
+}
+
+export interface PredictionRecord {
+  id?: number;
+  player_id: number;
+  player_name: string;
+  opponent_id: string;
+  game_date: string;
+  predicted_stats: {
+    [key: string]: number;
+  };
+  context: string;
+  created_at?: string;
+  actual_stats?: {
+    [key: string]: number;
+  };
+  status: "pending" | "completed";
+}
+
 export const nbaApi = {
   // CORRECTION MAJEURE ICI : Extraction de .games
   // Renommé en getGames30h pour matcher Home.tsx
