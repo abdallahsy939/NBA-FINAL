@@ -352,6 +352,34 @@ export interface ShootingBattleData {
   };
 }
 
+export interface PredictionPayload {
+  player_id: number;
+  player_name: string;
+  opponent_id: string;
+  game_date: string;
+  predicted_stats: {
+    [key: string]: number;
+  };
+  context: string;
+}
+
+export interface PredictionRecord {
+  id?: number;
+  player_id: number;
+  player_name: string;
+  opponent_id: string;
+  game_date: string;
+  predicted_stats: {
+    [key: string]: number;
+  };
+  context: string;
+  created_at?: string;
+  actual_stats?: {
+    [key: string]: number;
+  };
+  status: "pending" | "completed";
+}
+
 export const nbaApi = {
   // CORRECTION MAJEURE ICI : Extraction de .games
   // Renommé en getGames30h pour matcher Home.tsx
@@ -548,6 +576,24 @@ export const nbaApi = {
       `${API_BASE_URL}/predict/shooting-splits/${homeTeamCode}/${awayTeamCode}${queryString}`
     );
     if (!response.ok) throw new Error("Failed to fetch shooting splits");
+    return response.json();
+  },
+
+  async savePrediction(data: PredictionPayload): Promise<{ success: boolean; id?: number; message?: string }> {
+    const response = await fetch(`${API_BASE_URL}/predictions/save`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to save prediction");
+    return response.json();
+  },
+
+  async getPredictionHistory(): Promise<PredictionRecord[]> {
+    const response = await fetch(`${API_BASE_URL}/predictions/history`);
+    if (!response.ok) throw new Error("Failed to fetch prediction history");
     return response.json();
   },
 };

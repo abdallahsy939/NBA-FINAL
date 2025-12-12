@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { nbaApi, PlayerFullPrediction } from "@/services/nbaApi";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { TrendingUp, Zap, Calendar, Target, X } from "lucide-react";
+import { TrendingUp, Zap, Calendar, Target, X, Save } from "lucide-react";
 
 interface PlayerDetailsModalProps {
   isOpen: boolean;
@@ -51,6 +52,8 @@ export function PlayerDetailsModal({
   const [selectedStat, setSelectedStat] = useState<StatCategory>("PTS");
   const [bookmakerLine, setBookmakerLine] = useState("");
   const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [isSavingPrediction, setIsSavingPrediction] = useState(false);
+  const { toast } = useToast();
 
   const projection = getProjectionValue(player, selectedStat);
 
@@ -89,6 +92,36 @@ export function PlayerDetailsModal({
   const handleStatChange = (value: string) => {
     setSelectedStat(value as StatCategory);
     setCalculatorOpen(false);
+  };
+
+  const handleTrackPrediction = async () => {
+    setIsSavingPrediction(true);
+    try {
+      const payload = {
+        player_id: player.player_id,
+        player_name: player.player,
+        opponent_id: opponentTeamId,
+        game_date: new Date().toISOString().split("T")[0],
+        predicted_stats: player.predicted_stats,
+        context: `Fatigue: ${player.context?.blowout_penalty || "N/A"}`,
+      };
+
+      await nbaApi.savePrediction(payload);
+
+      toast({
+        title: "Success!",
+        description: `Prediction for ${player.player} saved successfully.`,
+      });
+    } catch (error) {
+      console.error("Failed to save prediction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save prediction. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingPrediction(false);
+    }
   };
 
   const recentFormAvg = useMemo(() => {
@@ -482,6 +515,19 @@ export function PlayerDetailsModal({
               </div>
             )}
           </div>
+        </div>
+
+        {/* Track Prediction Button - Footer */}
+        <div className="mt-8 pt-6 border-t border-slate-700/50">
+          <Button
+            onClick={handleTrackPrediction}
+            disabled={isSavingPrediction}
+            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold py-3 h-12"
+            size="lg"
+          >
+            <Save className="h-5 w-5 mr-2" />
+            {isSavingPrediction ? "Saving..." : "Track Prediction"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
