@@ -94,6 +94,36 @@ export function PlayerDetailsModal({
     setCalculatorOpen(false);
   };
 
+  const handleTrackPrediction = async () => {
+    setIsSavingPrediction(true);
+    try {
+      const payload = {
+        player_id: player.player_id,
+        player_name: player.player,
+        opponent_id: opponentTeamId,
+        game_date: new Date().toISOString().split("T")[0],
+        predicted_stats: player.predicted_stats,
+        context: `Fatigue: ${player.context?.blowout_penalty || "N/A"}`,
+      };
+
+      await nbaApi.savePrediction(payload);
+
+      toast({
+        title: "Success!",
+        description: `Prediction for ${player.player} saved successfully.`,
+      });
+    } catch (error) {
+      console.error("Failed to save prediction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save prediction. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingPrediction(false);
+    }
+  };
+
   const recentFormAvg = useMemo(() => {
     return historyData?.recent_form_avg || null;
   }, [historyData]);
