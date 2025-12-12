@@ -22,32 +22,94 @@ const getLogo = (id: number | undefined) =>
 const getPlayerAvatar = (playerId: number) =>
   `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerId}.png`;
 
+interface StatComparison {
+  PTS: number;
+  REB: number;
+  AST: number;
+  PRA: number;
+}
+
+function calculateStats(stats: { PTS: number; REB: number; AST: number }): StatComparison {
+  return {
+    PTS: stats.PTS,
+    REB: stats.REB,
+    AST: stats.AST,
+    PRA: stats.PTS + stats.REB + stats.AST,
+  };
+}
+
+interface StatCellProps {
+  stat: string;
+  projected: number;
+  real: number | null;
+  isFinished: boolean;
+}
+
+function StatCell({ stat, projected, real, isFinished }: StatCellProps) {
+  const displayReal = real !== null && real !== undefined;
+  const isPending = !isFinished || real === null || real === undefined;
+
+  let realColor = "";
+  let backgroundColor = "";
+
+  if (displayReal && !isPending) {
+    const diff = real - projected;
+    if (diff > 0) {
+      realColor = "text-emerald-400"; // Over hit - Green
+      backgroundColor = "bg-emerald-950/30";
+    } else if (diff < 0) {
+      realColor = "text-red-400"; // Under hit - Red
+      backgroundColor = "bg-red-950/30";
+    } else {
+      realColor = "text-cyan-400"; // Perfect match
+      backgroundColor = "bg-cyan-950/30";
+    }
+
+    // Optional: Highlight if very accurate (diff < 10%)
+    const accuracyPercent = Math.abs(diff) / Math.max(projected, 1);
+    if (accuracyPercent < 0.1) {
+      backgroundColor = "bg-blue-950/40 border border-blue-500/30";
+    }
+  }
+
+  return (
+    <div className={`flex flex-col items-center gap-1 p-2 rounded-lg ${backgroundColor}`}>
+      <p className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">
+        {stat}
+      </p>
+      <div className="flex flex-col items-center gap-0.5 w-full">
+        <p className="text-xs text-slate-400">
+          {projected.toFixed(stat === "PTS" || stat === "PRA" ? 1 : 1)}
+        </p>
+        {isFinished ? (
+          <p className={`text-sm font-bold ${realColor}`}>
+            {displayReal ? real.toFixed(0) : "-"}
+          </p>
+        ) : (
+          <p className="text-xs text-slate-500">-</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 interface PlayerRowProps {
   player: PlayerHistoryEntry;
   isFinished: boolean;
 }
 
 function PlayerRow({ player, isFinished }: PlayerRowProps) {
-  const projPts = player.predicted_stats?.PTS || 0;
-  const realPts = player.real_stats?.PTS;
-  const diff = realPts !== undefined ? realPts - projPts : null;
+  const projStats = calculateStats(player.predicted_stats);
+  const realStats = player.real_stats
+    ? calculateStats(player.real_stats)
+    : null;
 
-  const getVerdictColor = (difference: number | null) => {
-    if (difference === null) return "";
-    if (Math.abs(difference) < 3) return "text-emerald-400";
-    return "text-red-400";
-  };
-
-  const getVerdictIcon = (difference: number | null) => {
-    if (difference === null) return null;
-    if (Math.abs(difference) < 3) return <CheckCircle className="h-5 w-5" />;
-    return <AlertCircle className="h-5 w-5" />;
-  };
+  const isPending = !isFinished || !realStats;
 
   return (
-    <div className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:border-blue-500/30 transition-colors">
-      {/* Identity Column */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+    <div className="flex flex-col rounded-lg bg-slate-800/50 border border-slate-700/50 hover:border-blue-500/30 transition-colors overflow-hidden">
+      {/* Player Identity Row */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-700/30">
         <Avatar className="h-10 w-10 border border-blue-500/30 flex-shrink-0">
           <AvatarImage src={getPlayerAvatar(player.player_id)} alt={player.name} />
           <AvatarFallback className="bg-slate-700 text-xs font-bold text-white">
@@ -57,53 +119,119 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               .join("")}
           </AvatarFallback>
         </Avatar>
-        <div className="min-w-0 flex-1">
+        <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">{player.name}</p>
           <p className="text-xs text-slate-400">{player.team}</p>
         </div>
-      </div>
-
-      {/* Projected Column */}
-      <div className="flex flex-col items-center gap-1 flex-shrink-0 px-4 text-center">
-        <p className="text-xs text-slate-400 font-semibold uppercase">Proj</p>
-        <p className="text-lg font-bold text-cyan-400">{projPts.toFixed(1)}</p>
-      </div>
-
-      {/* Reality Column */}
-      {isFinished ? (
-        <div className="flex flex-col items-center gap-1 flex-shrink-0 px-4 text-center">
-          <p className="text-xs text-slate-400 font-semibold uppercase">Real</p>
-          <p className="text-lg font-bold text-amber-400">
-            {realPts !== undefined ? realPts.toFixed(0) : "-"}
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-1 flex-shrink-0 px-4 text-center">
-          <p className="text-xs text-slate-400 font-semibold uppercase">Real</p>
-          <p className="text-xs text-slate-500">-</p>
-        </div>
-      )}
-
-      {/* Verdict Column */}
-      <div className="flex flex-col items-center gap-1 flex-shrink-0 px-4 text-center">
-        <p className="text-xs text-slate-400 font-semibold uppercase">Verdict</p>
-        {isFinished ? (
-          diff !== null ? (
-            <div className={`flex items-center gap-2 ${getVerdictColor(diff)}`}>
-              {getVerdictIcon(diff)}
-              <span className="text-xs font-bold">
-                {diff > 0 ? "+" : ""}{diff.toFixed(1)}
-              </span>
-            </div>
-          ) : (
-            <span className="text-xs text-slate-500">-</span>
-          )
-        ) : (
-          <div className="flex items-center gap-1 text-slate-500">
+        {isPending && (
+          <div className="flex items-center gap-1 text-slate-500 flex-shrink-0">
             <Clock className="h-4 w-4" />
-            <span className="text-xs">Waiting...</span>
+            <span className="text-xs">Pending</span>
           </div>
         )}
+      </div>
+
+      {/* Stats Grid Row */}
+      <div className="grid grid-cols-4 gap-2 p-4 bg-slate-800/30">
+        {/* PTS Column */}
+        <div>
+          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
+            PTS
+          </div>
+          <StatCell
+            stat="Proj"
+            projected={projStats.PTS}
+            real={realStats?.PTS ?? null}
+            isFinished={isFinished}
+          />
+          {isFinished && (
+            <div className="text-center mt-1">
+              <p className="text-[10px] text-slate-400">Real</p>
+              <p className={`text-xs font-bold ${
+                realStats && realStats.PTS > projStats.PTS ? "text-emerald-400" :
+                realStats && realStats.PTS < projStats.PTS ? "text-red-400" :
+                "text-slate-400"
+              }`}>
+                {realStats ? realStats.PTS.toFixed(0) : "-"}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* REB Column */}
+        <div>
+          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
+            REB
+          </div>
+          <StatCell
+            stat="Proj"
+            projected={projStats.REB}
+            real={realStats?.REB ?? null}
+            isFinished={isFinished}
+          />
+          {isFinished && (
+            <div className="text-center mt-1">
+              <p className="text-[10px] text-slate-400">Real</p>
+              <p className={`text-xs font-bold ${
+                realStats && realStats.REB > projStats.REB ? "text-emerald-400" :
+                realStats && realStats.REB < projStats.REB ? "text-red-400" :
+                "text-slate-400"
+              }`}>
+                {realStats ? realStats.REB.toFixed(0) : "-"}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* AST Column */}
+        <div>
+          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
+            AST
+          </div>
+          <StatCell
+            stat="Proj"
+            projected={projStats.AST}
+            real={realStats?.AST ?? null}
+            isFinished={isFinished}
+          />
+          {isFinished && (
+            <div className="text-center mt-1">
+              <p className="text-[10px] text-slate-400">Real</p>
+              <p className={`text-xs font-bold ${
+                realStats && realStats.AST > projStats.AST ? "text-emerald-400" :
+                realStats && realStats.AST < projStats.AST ? "text-red-400" :
+                "text-slate-400"
+              }`}>
+                {realStats ? realStats.AST.toFixed(0) : "-"}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* PRA Column */}
+        <div>
+          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
+            PRA
+          </div>
+          <StatCell
+            stat="Proj"
+            projected={projStats.PRA}
+            real={realStats?.PRA ?? null}
+            isFinished={isFinished}
+          />
+          {isFinished && (
+            <div className="text-center mt-1">
+              <p className="text-[10px] text-slate-400">Real</p>
+              <p className={`text-xs font-bold ${
+                realStats && realStats.PRA > projStats.PRA ? "text-emerald-400" :
+                realStats && realStats.PRA < projStats.PRA ? "text-red-400" :
+                "text-slate-400"
+              }`}>
+                {realStats ? realStats.PRA.toFixed(0) : "-"}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -125,7 +253,7 @@ export function HistoryDetailsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-blue-500/20">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-blue-500/20">
         {/* Header */}
         <DialogHeader className="border-b border-blue-500/20 px-6 py-4 bg-gradient-to-r from-slate-900 to-slate-800 flex-shrink-0">
           <div className="flex items-center justify-between w-full">
