@@ -679,4 +679,10 @@ export const nbaApi = {
     if (!response.ok) throw new Error("Failed to fetch full match prediction");
     return response.json();
   },
+
+  async getMatchHistory(): Promise<MatchHistoryEntry[]> {
+    const response = await fetch(`${API_BASE_URL}/predictions/match-history`);
+    if (!response.ok) throw new Error("Failed to fetch match history");
+    return response.json();
+  },
 };
