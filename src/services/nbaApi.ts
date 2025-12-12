@@ -405,6 +405,36 @@ export interface MatchSaveRequest {
   winner_prediction: string;
 }
 
+export interface RealStats {
+  PTS: number;
+  REB: number;
+  AST: number;
+  MIN: string | number;
+}
+
+export interface PlayerHistoryEntry {
+  player_id: number;
+  name: string;
+  team: string;
+  predicted_stats: { PTS: number; REB: number; AST: number; MIN: number };
+  real_stats?: RealStats;
+}
+
+export interface MatchHistoryEntry {
+  game_id: string;
+  game_date: string;
+  home_team: string;
+  away_team: string;
+  home_team_id: number;
+  away_team_id: number;
+  home_players: PlayerHistoryEntry[];
+  away_players: PlayerHistoryEntry[];
+  status: "PENDING" | "FINISHED";
+  accuracy_score?: number;
+  real_winner?: string;
+  saved_at: string;
+}
+
 export const nbaApi = {
   // CORRECTION MAJEURE ICI : Extraction de .games
   // Renommé en getGames30h pour matcher Home.tsx
