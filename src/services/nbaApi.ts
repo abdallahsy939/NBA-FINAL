@@ -380,6 +380,31 @@ export interface PredictionRecord {
   status: "pending" | "completed";
 }
 
+export interface PlayerStatSave {
+  player_id: number;
+  name: string;
+  team: string;
+  predicted_stats: {
+    PTS: number;
+    REB: number;
+    AST: number;
+    MIN: number;
+    PRA: number;
+  };
+}
+
+export interface MatchSaveRequest {
+  game_id: string;
+  game_date: string;
+  home_team: string;
+  home_team_id: number;
+  away_team: string;
+  away_team_id: number;
+  home_players: PlayerStatSave[];
+  away_players: PlayerStatSave[];
+  winner_prediction: string;
+}
+
 export const nbaApi = {
   // CORRECTION MAJEURE ICI : Extraction de .games
   // Renommé en getGames30h pour matcher Home.tsx
