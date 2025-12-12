@@ -164,6 +164,10 @@ const GameDetails = () => {
             awayAbsentPlayerIds={awayAbsentPlayerIds}
             onHomeAbsentPlayersChange={setHomeAbsentPlayerIds}
             onAwayAbsentPlayersChange={setAwayAbsentPlayerIds}
+            gameId={currentGame.gameId}
+            gameDate={currentGame.gameDate}
+            homeTeam={currentGame.homeTeam}
+            awayTeam={currentGame.awayTeam}
           />
         )}
       </main>
