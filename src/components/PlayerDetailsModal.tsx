@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { nbaApi, PlayerFullPrediction } from "@/services/nbaApi";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { TrendingUp, Zap, Calendar, Target, X } from "lucide-react";
+import { TrendingUp, Zap, Calendar, Target, X, Save } from "lucide-react";
 
 interface PlayerDetailsModalProps {
   isOpen: boolean;
