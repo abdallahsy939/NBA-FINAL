@@ -152,6 +152,69 @@ export function MatchPredictionModal({
     [awayMissingPlayers]
   );
 
+  const handleSaveMatch = useCallback(async () => {
+    if (!game) return;
+
+    try {
+      setIsSaving(true);
+
+      const homeTeamIdNum = typeof game.homeTeamId === "string" ? parseInt(game.homeTeamId) : game.homeTeamId;
+      const awayTeamIdNum = typeof game.awayTeamId === "string" ? parseInt(game.awayTeamId) : game.awayTeamId;
+
+      if (!homeTeamIdNum || !awayTeamIdNum) {
+        toast.error("Team IDs not available");
+        return;
+      }
+
+      const homeMissingPlayerIds = homeMissingPlayers.map((p) => p.id);
+      const awayMissingPlayerIds = awayMissingPlayers.map((p) => p.id);
+
+      const fullMatchData = await nbaApi.getFullMatchPredictionForSave(
+        homeTeamId,
+        awayTeamId,
+        homeMissingPlayerIds,
+        awayMissingPlayerIds
+      );
+
+      const formatPlayerStats = (player: any): PlayerStatSave => {
+        return {
+          player_id: player.player_id,
+          name: player.player,
+          team: player.team,
+          predicted_stats: {
+            PTS: player.predicted_stats?.PTS || 0,
+            REB: player.predicted_stats?.REB || 0,
+            AST: player.predicted_stats?.AST || 0,
+            MIN: player.predicted_stats?.MIN || 0,
+            PRA: player.advanced_metrics_projected?.PRA || 0,
+          },
+        };
+      };
+
+      const saveRequest: MatchSaveRequest = {
+        game_id: game.gameId,
+        game_date: game.gameDate,
+        home_team: game.homeTeam,
+        home_team_id: homeTeamIdNum,
+        away_team: game.awayTeam,
+        away_team_id: awayTeamIdNum,
+        home_players: fullMatchData.home_players.map(formatPlayerStats),
+        away_players: fullMatchData.away_players.map(formatPlayerStats),
+        winner_prediction: prediction?.predicted_winner || game.homeTeam,
+      };
+
+      await nbaApi.saveMatchPrediction(saveRequest);
+
+      toast.success("Match & Projections saved to History");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to save match";
+      toast.error(errorMessage);
+      console.error("Save match error:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [game, homeTeamId, awayTeamId, homeMissingPlayers, awayMissingPlayers, prediction]);
+
   const getConfidenceBadgeColor = (level: string | undefined | null) => {
     if (!level) return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     const lower = level.toLowerCase();
