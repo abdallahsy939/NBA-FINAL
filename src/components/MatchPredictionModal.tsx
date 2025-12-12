@@ -851,12 +851,12 @@ export function MatchPredictionModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-blue-500/20 px-6 py-4 bg-slate-900 flex gap-3 flex-shrink-0">
+        <div className="border-t border-blue-500/20 px-6 py-4 bg-gradient-to-r from-slate-900 to-slate-800 flex gap-3 flex-shrink-0">
           <Button
             onClick={() => refetch()}
             variant="outline"
             size="sm"
-            className="flex-1 border-blue-500/30 hover:bg-blue-500/10"
+            className="flex-1 border-blue-500/30 hover:bg-blue-500/20 text-blue-300 hover:text-blue-200 font-semibold transition-colors"
             disabled={isSaving}
           >
             <Zap className="h-3.5 w-3.5 mr-2" />
@@ -866,7 +866,7 @@ export function MatchPredictionModal({
             onClick={handleSaveMatch}
             size="sm"
             disabled={isSaving || !prediction}
-            className="flex-1 bg-gradient-to-r from-emerald-600/80 to-green-600/80 hover:from-emerald-500 hover:to-green-500 text-white border-0"
+            className="flex-1 bg-gradient-to-r from-emerald-600/80 to-green-600/80 hover:from-emerald-500 hover:to-green-500 text-white border-0 font-semibold transition-all"
           >
             <BookmarkCheck className="h-3.5 w-3.5 mr-2" />
             {isSaving ? "Saving..." : "Save Analysis"}
@@ -875,7 +875,7 @@ export function MatchPredictionModal({
             onClick={() => onOpenChange(false)}
             size="sm"
             disabled={isSaving}
-            className="flex-1 bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500"
+            className="flex-1 bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500 text-white font-semibold transition-all"
           >
             Close
             <ChevronRight className="h-3.5 w-3.5 ml-2" />
