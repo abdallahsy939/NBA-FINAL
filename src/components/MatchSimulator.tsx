@@ -1,9 +1,10 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { nbaApi, InteractiveMatchPrediction, PlayerFullPrediction } from "@/services/nbaApi";
+import { nbaApi, InteractiveMatchPrediction, PlayerFullPrediction, PlayerStatSave, MatchSaveRequest } from "@/services/nbaApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -18,8 +19,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircle, Flame, AlertTriangle, Info } from "lucide-react";
+import { AlertCircle, Flame, AlertTriangle, Info, BookmarkCheck, Zap } from "lucide-react";
 import { PlayerDetailsModal } from "./PlayerDetailsModal";
+import { toast } from "sonner";
 
 interface MatchSimulatorProps {
   homeTeamId: string;
@@ -30,6 +32,10 @@ interface MatchSimulatorProps {
   awayAbsentPlayerIds?: number[];
   onHomeAbsentPlayersChange?: (ids: number[]) => void;
   onAwayAbsentPlayersChange?: (ids: number[]) => void;
+  gameId?: string;
+  gameDate?: string;
+  homeTeam?: string;
+  awayTeam?: string;
 }
 
 export function MatchSimulator({
