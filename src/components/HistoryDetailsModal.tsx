@@ -45,40 +45,52 @@ interface StatCellProps {
   isFinished: boolean;
 }
 
+function getStatColor(stat: string) {
+  switch (stat) {
+    case "PTS":
+      return { bg: "bg-amber-950/40", text: "text-amber-400", border: "border-amber-500/30", label: "text-amber-300" };
+    case "REB":
+      return { bg: "bg-emerald-950/40", text: "text-emerald-400", border: "border-emerald-500/30", label: "text-emerald-300" };
+    case "AST":
+      return { bg: "bg-cyan-950/40", text: "text-cyan-400", border: "border-cyan-500/30", label: "text-cyan-300" };
+    case "PRA":
+      return { bg: "bg-purple-950/40", text: "text-purple-400", border: "border-purple-500/30", label: "text-purple-300" };
+    default:
+      return { bg: "bg-blue-950/40", text: "text-blue-400", border: "border-blue-500/30", label: "text-blue-300" };
+  }
+}
+
 function StatCell({ stat, projected, real, isFinished }: StatCellProps) {
   const displayReal = real !== null && real !== undefined;
   const isPending = !isFinished || real === null || real === undefined;
+  const statColor = getStatColor(stat);
 
   let realColor = "";
-  let backgroundColor = "";
+  let backgroundColor = statColor.bg;
 
   if (displayReal && !isPending) {
     const diff = real - projected;
     if (diff > 0) {
-      realColor = "text-emerald-400"; // Over hit - Green
-      backgroundColor = "bg-emerald-950/30";
+      realColor = "text-emerald-300"; // Over hit - Green
+      backgroundColor = "bg-emerald-950/50 border border-emerald-500/40";
     } else if (diff < 0) {
-      realColor = "text-red-400"; // Under hit - Red
-      backgroundColor = "bg-red-950/30";
+      realColor = "text-red-300"; // Under hit - Red
+      backgroundColor = "bg-red-950/50 border border-red-500/40";
     } else {
-      realColor = "text-cyan-400"; // Perfect match
-      backgroundColor = "bg-cyan-950/30";
+      realColor = "text-yellow-300"; // Perfect match
+      backgroundColor = "bg-yellow-950/50 border border-yellow-500/40";
     }
-
-    // Optional: Highlight if very accurate (diff < 10%)
-    const accuracyPercent = Math.abs(diff) / Math.max(projected, 1);
-    if (accuracyPercent < 0.1) {
-      backgroundColor = "bg-blue-950/40 border border-blue-500/30";
-    }
+  } else if (!isPending) {
+    backgroundColor = `${statColor.bg} border ${statColor.border}`;
   }
 
   return (
     <div className={`flex flex-col items-center gap-1 p-2 rounded-lg ${backgroundColor}`}>
-      <p className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">
+      <p className={`text-[10px] font-semibold uppercase ${statColor.label} tracking-wider`}>
         {stat}
       </p>
       <div className="flex flex-col items-center gap-0.5 w-full">
-        <p className="text-xs text-slate-400">
+        <p className={`text-xs ${statColor.text} font-medium`}>
           {projected.toFixed(stat === "PTS" || stat === "PRA" ? 1 : 1)}
         </p>
         {isFinished ? (
