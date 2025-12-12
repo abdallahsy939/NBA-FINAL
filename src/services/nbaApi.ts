@@ -578,4 +578,22 @@ export const nbaApi = {
     if (!response.ok) throw new Error("Failed to fetch shooting splits");
     return response.json();
   },
+
+  async savePrediction(data: PredictionPayload): Promise<{ success: boolean; id?: number; message?: string }> {
+    const response = await fetch(`${API_BASE_URL}/predictions/save`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to save prediction");
+    return response.json();
+  },
+
+  async getPredictionHistory(): Promise<PredictionRecord[]> {
+    const response = await fetch(`${API_BASE_URL}/predictions/history`);
+    if (!response.ok) throw new Error("Failed to fetch prediction history");
+    return response.json();
+  },
 };
