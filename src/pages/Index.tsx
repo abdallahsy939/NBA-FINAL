@@ -35,11 +35,11 @@ const Index = () => {
           {/* Right: Navigation */}
           <div className="flex items-center gap-3">
             <Link
-              to="/history"
+              to="/predictions"
               className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white font-semibold"
             >
               <HistoryIcon className="h-5 w-5" />
-              <span className="hidden sm:inline">History</span>
+              <span className="hidden sm:inline">Predictions</span>
             </Link>
             <AppUpdatesModal />
           </div>
