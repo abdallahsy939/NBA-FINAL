@@ -412,9 +412,9 @@ export function MatchPredictionModal({
 
                 {/* ============ SECTION 2: KEY METRICS ============ */}
                 <div className="grid grid-cols-3 gap-3">
-                  <Card className="border-blue-500/20 bg-blue-950/30">
+                  <Card className="border-purple-500/30 bg-gradient-to-br from-purple-950/40 to-purple-900/20 hover:border-purple-500/50 transition-colors">
                     <CardContent className="p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">
+                      <p className="text-[10px] uppercase tracking-widest text-purple-300/70 font-bold mb-1">
                         Confidence
                       </p>
                       <Badge
@@ -427,26 +427,26 @@ export function MatchPredictionModal({
                     </CardContent>
                   </Card>
 
-                  <Card className="border-blue-500/20 bg-blue-950/30">
+                  <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-cyan-900/20 hover:border-cyan-500/50 transition-colors">
                     <CardContent className="p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">
+                      <p className="text-[10px] uppercase tracking-widest text-cyan-300/70 font-bold mb-1">
                         Projected Total
                       </p>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-xl font-black text-cyan-400">
+                        <span className="text-xl font-black text-cyan-300">
                           {(prediction?.predicted_total_points || 0).toFixed(0)}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">pts</span>
+                        <span className="text-[10px] text-cyan-400/50">pts</span>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="border-blue-500/20 bg-blue-950/30">
+                  <Card className="border-amber-500/30 bg-gradient-to-br from-amber-950/40 to-amber-900/20 hover:border-amber-500/50 transition-colors">
                     <CardContent className="p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">
+                      <p className="text-[10px] uppercase tracking-widest text-amber-300/70 font-bold mb-1">
                         Simulation
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-amber-300/80 font-semibold">
                         {homeMissingPlayers.length + awayMissingPlayers.length} absence{homeMissingPlayers.length + awayMissingPlayers.length !== 1 ? "s" : ""}
                       </p>
                     </CardContent>
