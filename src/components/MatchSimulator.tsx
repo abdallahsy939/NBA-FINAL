@@ -566,6 +566,18 @@ export function MatchSimulator({
             </CardContent>
           </Card>
         </div>
+
+        {/* Footer with Save Button */}
+        <div className="border-t border-blue-500/20 px-6 py-4 bg-slate-900 flex gap-3">
+          <Button
+            onClick={handleSaveMatch}
+            disabled={isSaving || !displayPrediction}
+            className="flex-1 bg-gradient-to-r from-emerald-600/80 to-green-600/80 hover:from-emerald-500 hover:to-green-500 text-white border-0"
+          >
+            <BookmarkCheck className="h-3.5 w-3.5 mr-2" />
+            {isSaving ? "Saving..." : "Save Analysis"}
+          </Button>
+        </div>
       </div>
     </TooltipProvider>
   );
