@@ -278,21 +278,23 @@ export function MatchPredictionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* 1. RÉDUCTION DE LA TAILLE ICI (max-w-[850px] et max-h-[85vh]) */}
-      <DialogContent className="sm:max-w-[850px] max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
-        
+      <DialogContent className="sm:max-w-[850px] max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-blue-500/20">
+
         {/* Header - Padding réduit */}
-        <DialogHeader className="border-b border-blue-500/20 px-6 py-3 bg-gradient-to-r from-slate-900 to-slate-800 flex-shrink-0">
-          <DialogTitle className="flex items-center gap-2 text-base">
-            <Brain className="h-5 w-5 text-purple-400" />
-            <span className="text-foreground">Match Analysis</span>
-            <span className="text-muted-foreground text-sm font-normal ml-auto">
+        <DialogHeader className="border-b border-blue-500/20 px-6 py-4 bg-gradient-to-r from-slate-900/80 via-purple-950/30 to-slate-800/80 backdrop-blur-sm flex-shrink-0">
+          <DialogTitle className="flex items-center gap-3 text-base">
+            <div className="p-1.5 rounded-lg bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-500/30">
+              <Brain className="h-5 w-5 text-purple-300" />
+            </div>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-blue-300 font-semibold">Match Analysis</span>
+            <span className="text-blue-300/70 text-sm font-normal ml-auto">
               {game?.awayTeam} @ {game?.homeTeam}
             </span>
           </DialogTitle>
         </DialogHeader>
 
         {/* Content - Scroll Natif et Padding réduit (p-4) */}
-        <div className="flex-1 overflow-y-auto min-h-0 bg-background/50">
+        <div className="flex-1 overflow-y-auto min-h-0 bg-gradient-to-b from-slate-900/50 to-slate-950/50">
           <div className="p-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
