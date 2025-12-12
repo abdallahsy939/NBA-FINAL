@@ -140,6 +140,62 @@ export function MatchSimulator({
     []
   );
 
+  const handleSaveMatch = useCallback(async () => {
+    if (!gameId || !gameDate || !homeTeam || !awayTeam || !displayPrediction) {
+      toast.error("Match information not available");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      const homeTeamIdNum = parseInt(homeTeamId);
+      const awayTeamIdNum = parseInt(awayTeamId);
+
+      if (!homeTeamIdNum || !awayTeamIdNum) {
+        toast.error("Team IDs not available");
+        return;
+      }
+
+      const formatPlayerStats = (player: PlayerFullPrediction): PlayerStatSave => {
+        return {
+          player_id: player.player_id,
+          name: player.player,
+          team: player.team,
+          predicted_stats: {
+            PTS: player.predicted_stats?.PTS || 0,
+            REB: player.predicted_stats?.REB || 0,
+            AST: player.predicted_stats?.AST || 0,
+            MIN: player.predicted_stats?.MIN || 0,
+            PRA: player.advanced_metrics_projected?.PRA || 0,
+          },
+        };
+      };
+
+      const saveRequest: MatchSaveRequest = {
+        game_id: gameId,
+        game_date: gameDate,
+        home_team: homeTeam,
+        home_team_id: homeTeamIdNum,
+        away_team: awayTeam,
+        away_team_id: awayTeamIdNum,
+        home_players: displayPrediction.home_players.map(formatPlayerStats),
+        away_players: displayPrediction.away_players.map(formatPlayerStats),
+        winner_prediction: homeTeam,
+      };
+
+      await nbaApi.saveMatchPrediction(saveRequest);
+
+      toast.success("Match & Projections saved to History");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to save match";
+      toast.error(errorMessage);
+      console.error("Save match error:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [gameId, gameDate, homeTeam, awayTeam, homeTeamId, awayTeamId, displayPrediction]);
+
   const hasHighBlowoutRisk = useMemo(() => {
     if (!displayPrediction) return false;
     const allPlayers = [...displayPrediction.home_players, ...displayPrediction.away_players];
