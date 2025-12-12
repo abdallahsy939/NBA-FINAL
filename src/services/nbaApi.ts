@@ -621,4 +621,32 @@ export const nbaApi = {
     if (!response.ok) throw new Error("Failed to fetch prediction history");
     return response.json();
   },
+
+  async saveMatchPrediction(data: MatchSaveRequest): Promise<{ success: boolean; message?: string; id?: number }> {
+    const response = await fetch(`${API_BASE_URL}/predictions/save-match`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to save match prediction");
+    return response.json();
+  },
+
+  async getFullMatchPredictionForSave(
+    homeId: string | number,
+    awayId: string | number,
+    homeAbsent: number[] = [],
+    awayAbsent: number[] = []
+  ): Promise<FullMatchPrediction> {
+    const params = new URLSearchParams();
+    homeAbsent.forEach(id => params.append("home_absent", id.toString()));
+    awayAbsent.forEach(id => params.append("away_absent", id.toString()));
+
+    const queryString = params.toString() ? `?${params.toString()}` : "";
+    const response = await fetch(`${API_BASE_URL}/predict/full-match/${homeId}/${awayId}${queryString}`);
+    if (!response.ok) throw new Error("Failed to fetch full match prediction");
+    return response.json();
+  },
 };
