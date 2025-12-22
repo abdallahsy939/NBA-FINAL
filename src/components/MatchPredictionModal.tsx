@@ -57,6 +57,13 @@ interface MatchPredictionModalProps {
 const getLogo = (id: string | undefined) =>
   id ? `https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg` : null;
 
+const getConfidenceLevel = (spread: number): string => {
+  const absSpread = Math.abs(spread);
+  if (absSpread < 2) return "Tight";
+  if (absSpread < 5) return "Solid";
+  return "Blowout";
+};
+
 export function MatchPredictionModal({
   open,
   onOpenChange,
