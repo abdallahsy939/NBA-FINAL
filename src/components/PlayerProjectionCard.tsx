@@ -15,8 +15,8 @@ export function PlayerProjectionCard({
   opponentTeamName,
 }: PlayerProjectionCardProps) {
   const { data: projection, isLoading, error } = useQuery({
-    queryKey: ["player-projection", player.id, opponentTeamCode],
-    queryFn: () => nbaApi.predictPlayerStats(player.id, opponentTeamCode),
+    queryKey: ["player-deep-analytics", player.id, opponentTeamCode],
+    queryFn: () => nbaApi.getPlayerDeepAnalytics(player.id, opponentTeamCode),
     enabled: !!opponentTeamCode,
   });
 
