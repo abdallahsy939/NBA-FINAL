@@ -546,6 +546,41 @@ export const nbaApi = {
     return response.json();
   },
 
+  async getMatchPredictionV2(
+    homeTeamId: string,
+    awayTeamId: string,
+    homeRest: number = 1,
+    awayRest: number = 1,
+    homeAbsentIds?: number[],
+    awayAbsentIds?: number[]
+  ): Promise<MatchPredictionV2Response> {
+    const params = new URLSearchParams();
+    params.append("home_rest", homeRest.toString());
+    params.append("away_rest", awayRest.toString());
+
+    if (homeAbsentIds && homeAbsentIds.length > 0) {
+      homeAbsentIds.forEach(id => params.append("home_absent", id.toString()));
+    }
+    if (awayAbsentIds && awayAbsentIds.length > 0) {
+      awayAbsentIds.forEach(id => params.append("away_absent", id.toString()));
+    }
+
+    const queryString = params.toString() ? `?${params.toString()}` : "";
+    const response = await fetch(
+      `${API_BASE_URL}/predict/full-match-v2/${homeTeamId}/${awayTeamId}${queryString}`
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+      if (errorData.error && errorData.error.includes("Cache non chargé")) {
+        throw new Error("CACHE_WARMING");
+      }
+      throw new Error(`Failed to predict match: ${errorData.error || response.statusText}`);
+    }
+
+    return response.json();
+  },
+
   async predictPlayerStats(
     playerId: number,
     opponentTeamId: string
