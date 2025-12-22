@@ -310,28 +310,6 @@ export function MatchPredictionModal({
                   <p className="text-sm text-muted-foreground">Analyzing forecast...</p>
                 </div>
               </div>
-            ) : cacheWarming ? (
-              <div className="flex items-center justify-center py-20">
-                <Card className="border-amber-500/50 bg-amber-950/30 max-w-md">
-                  <CardContent className="p-6 text-center space-y-4">
-                    <AlertCircle className="h-12 w-12 text-amber-400 mx-auto" />
-                    <h3 className="text-base font-semibold text-amber-300">System Cache is Warming Up</h3>
-                    <p className="text-sm text-amber-200/80">
-                      The prediction engine is initializing. Please wait 60 seconds and refresh the page.
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setCacheWarming(false);
-                        refetch();
-                      }}
-                      size="sm"
-                      className="mt-4 bg-amber-600 hover:bg-amber-500 text-white"
-                    >
-                      Try Again
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
             ) : prediction ? (
               <div className="space-y-6">
                 {/* Calculate confidence level from prediction */}
