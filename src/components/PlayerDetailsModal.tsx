@@ -207,6 +207,21 @@ export function PlayerDetailsModal({
                       {player.position}
                     </Badge>
                   )}
+                  {player.archetype && (
+                    <Badge className={`text-sm font-bold px-3 py-1 border ${
+                      player.archetype.type.toLowerCase().includes("sniper")
+                        ? "bg-blue-500/30 text-blue-200 border-blue-500/50"
+                        : player.archetype.type.toLowerCase().includes("slasher")
+                          ? "bg-red-500/30 text-red-200 border-red-500/50"
+                          : "bg-cyan-500/30 text-cyan-200 border-cyan-500/50"
+                    }`}>
+                      {player.archetype.type.toLowerCase().includes("sniper")
+                        ? "🎯 Sniper"
+                        : player.archetype.type.toLowerCase().includes("slasher")
+                          ? "⚡ Slasher"
+                          : "🏀 Standard"}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
