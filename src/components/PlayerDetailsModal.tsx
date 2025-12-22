@@ -277,7 +277,7 @@ export function PlayerDetailsModal({
                 </div>
               </div>
             </div>
-            
+
             {historyData?.splits && (historyData.splits.home || historyData.splits.away) && (
               <div className="backdrop-blur-md bg-slate-800/30 border border-slate-700/50 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -294,6 +294,120 @@ export function PlayerDetailsModal({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Deep Analytics Section */}
+        {(player.shot_quality_analysis || player.lineup_synergy) && (
+          <div className="mb-6">
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <Target className="h-5 w-5 text-indigo-400" />
+              Deep Analytics
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Shot Quality Widget */}
+              {player.shot_quality_analysis && (
+                <Card className="bg-slate-800/40 border-slate-700/50">
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-3">Shot Quality</p>
+                        <Badge className={`text-sm font-bold px-3 py-2 border ${
+                          player.shot_quality_analysis.tier === "SUPERSTAR_CREATOR"
+                            ? "bg-yellow-500/30 text-yellow-200 border-yellow-500/50"
+                            : player.shot_quality_analysis.tier === "TOUGH_SHOT_MAKER"
+                              ? "bg-purple-500/30 text-purple-200 border-purple-500/50"
+                              : player.shot_quality_analysis.tier === "SPOT_UP_SPECIALIST"
+                                ? "bg-blue-500/30 text-blue-200 border-blue-500/50"
+                                : "bg-slate-700/40 text-slate-200 border-slate-600/50"
+                        }`}>
+                          {player.shot_quality_analysis.tier === "SUPERSTAR_CREATOR"
+                            ? "🌟 Elite Creator"
+                            : player.shot_quality_analysis.tier === "TOUGH_SHOT_MAKER"
+                              ? "💪 Tough Shot Maker"
+                              : player.shot_quality_analysis.tier === "SPOT_UP_SPECIALIST"
+                                ? "🎯 Spot-Up"
+                                : "📊 Standard"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 font-medium mb-1">Reasoning</p>
+                        <p className="text-sm text-slate-300">{player.shot_quality_analysis.reasoning}</p>
+                      </div>
+                      <div className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-3">
+                        <p className="text-xs text-slate-400 font-medium mb-2">Projection Impact</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">
+                            <span className="text-slate-400">Before: </span>
+                            <span className="font-bold text-amber-300">{player.shot_quality_analysis.pts_before.toFixed(1)}</span>
+                          </span>
+                          <span className="text-slate-500">→</span>
+                          <span className="text-sm">
+                            <span className="text-slate-400">After: </span>
+                            <span className={`font-bold ${player.shot_quality_analysis.pts_after < player.shot_quality_analysis.pts_before ? "text-red-300" : "text-emerald-300"}`}>
+                              {player.shot_quality_analysis.pts_after.toFixed(1)}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Lineup Synergy Widget */}
+              {player.lineup_synergy && (
+                <Card className="bg-slate-800/40 border-slate-700/50">
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Lineup Synergy</p>
+                      <div className={`rounded-lg p-4 border-2 backdrop-blur-sm ${
+                        player.lineup_synergy.impact_pct > 0
+                          ? "bg-emerald-500/20 border-emerald-500/30"
+                          : player.lineup_synergy.impact_pct < 0
+                            ? "bg-red-500/20 border-red-500/30"
+                            : "bg-slate-700/20 border-slate-600/30"
+                      }`}>
+                        {player.lineup_synergy.impact_pct > 0 ? (
+                          <>
+                            <p className="text-2xl font-bold text-emerald-300 mb-2">
+                              🔥 +{player.lineup_synergy.impact_pct.toFixed(1)}% Boost
+                            </p>
+                            <p className="text-sm text-emerald-200/90">
+                              Exceptional lineup chemistry enhancing team performance
+                            </p>
+                          </>
+                        ) : player.lineup_synergy.impact_pct < 0 ? (
+                          <>
+                            <p className="text-2xl font-bold text-red-300 mb-2">
+                              ⚠️ {player.lineup_synergy.impact_pct.toFixed(1)}% Penalty
+                            </p>
+                            <p className="text-sm text-red-200/90">
+                              Spacing issues affecting team fit
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold text-slate-300 mb-2">
+                              ⚖️ Neutral Chemistry
+                            </p>
+                            <p className="text-sm text-slate-300/90">
+                              Balanced team synergy
+                            </p>
+                          </>
+                        )}
+                      </div>
+                      <div className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-3 text-center">
+                        <p className="text-xs text-slate-400 font-medium mb-1">Synergy Multiplier</p>
+                        <p className="text-xl font-bold text-cyan-300">
+                          {player.lineup_synergy.multiplier.toFixed(3)}x
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         )}
 
