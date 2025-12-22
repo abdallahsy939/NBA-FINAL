@@ -425,10 +425,10 @@ export function MatchPredictionModal({
                       </p>
                       <Badge
                         className={`text-[10px] px-2 py-0.5 ${getConfidenceBadgeColor(
-                          prediction?.confidence_level
+                          getConfidenceLevel(prediction?.predicted_margin || 0)
                         )}`}
                       >
-                        {prediction?.confidence_level || "Analyzing..."}
+                        {getConfidenceLevel(prediction?.predicted_margin || 0)}
                       </Badge>
                     </CardContent>
                   </Card>
