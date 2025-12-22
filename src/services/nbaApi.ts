@@ -205,6 +205,16 @@ export interface PlayerFullPrediction {
   context?: PlayerContext;
   blowout_analysis: BlowoutAnalysis;
   is_home?: boolean;
+  shot_quality_analysis?: {
+    tier: string;
+    reasoning: string;
+    pts_before: number;
+    pts_after: number;
+  };
+  lineup_synergy?: {
+    multiplier: number;
+    impact_pct: number;
+  };
 }
 
 export interface MatchContext {
