@@ -162,7 +162,7 @@ export function MatchPredictionModal({
   );
 
   const handleSaveMatch = useCallback(async () => {
-    if (!game || !v2Response) return;
+    if (!game || !prediction) return;
 
     try {
       setIsSaving(true);
@@ -174,6 +174,14 @@ export function MatchPredictionModal({
         toast.error("Team IDs not available");
         return;
       }
+
+      // Fetch full match prediction with player data for saving
+      const fullPrediction = await nbaApi.getFullMatchPredictionWithAbsents(
+        homeTeamId,
+        awayTeamId,
+        homeMissingPlayers.map((p) => p.id),
+        awayMissingPlayers.map((p) => p.id)
+      );
 
       const formatPlayerStats = (player: any): PlayerStatSave => {
         return {
@@ -197,9 +205,9 @@ export function MatchPredictionModal({
         home_team_id: homeTeamIdNum,
         away_team: game.awayTeam,
         away_team_id: awayTeamIdNum,
-        home_players: v2Response.home_players.map(formatPlayerStats),
-        away_players: v2Response.away_players.map(formatPlayerStats),
-        winner_prediction: v2Response.match_info.predicted_winner,
+        home_players: fullPrediction.home_players.map(formatPlayerStats),
+        away_players: fullPrediction.away_players.map(formatPlayerStats),
+        winner_prediction: prediction.predicted_winner,
       };
 
       await nbaApi.saveMatchPrediction(saveRequest);
@@ -212,7 +220,7 @@ export function MatchPredictionModal({
     } finally {
       setIsSaving(false);
     }
-  }, [game, v2Response]);
+  }, [game, prediction, homeTeamId, awayTeamId, homeMissingPlayers, awayMissingPlayers]);
 
   const getConfidenceBadgeColor = (level: string | undefined | null) => {
     if (!level) return "bg-gray-500/20 text-gray-400 border-gray-500/30";
