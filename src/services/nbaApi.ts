@@ -181,6 +181,13 @@ export interface PlayerContext {
   reasoning?: string;
 }
 
+export interface Archetype {
+  type: string;
+  is_star: boolean;
+  paint_rate: number;
+  three_rate: number;
+}
+
 export interface PlayerFullPrediction {
   player: string;
   position?: string;
@@ -188,6 +195,7 @@ export interface PlayerFullPrediction {
   team: string;
   predicted_stats: PlayerPredictedStats;
   advanced_metrics_projected: AdvancedMetricsProjected;
+  archetype?: Archetype;
   matchup_analysis?: {
     defensive_rating?: number;
     rank?: number;
