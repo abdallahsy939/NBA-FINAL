@@ -312,8 +312,6 @@ export function MatchPredictionModal({
               </div>
             ) : prediction ? (
               <div className="space-y-6">
-                {/* Calculate confidence level from prediction */}
-
                 {/* ============ SECTION 1: MATCH HEADER (SCOREBOARD) ============ */}
                 <Card className={`bg-gradient-to-r ${getWinnerGradient(
                   prediction.predicted_winner
