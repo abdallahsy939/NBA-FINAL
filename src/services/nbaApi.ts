@@ -99,23 +99,40 @@ export interface MatchPrediction {
   win_probability_home: number;
   predicted_total_points: number;
   confidence_level?: string;
-  
+
   math_breakdown: {
     base_spread: { value: number; desc: string };
     fatigue_adjust: { value: number; desc: string };
     absences_adjust: { value: number; desc: string };
     final_spread: number;
   };
-  
+
   context_analysis: {
     home_fatigue_factors: string[];
     away_fatigue_factors: string[];
   };
-  
+
   details: {
     spread_raw: number;
     home_net_rtg?: number;
     away_net_rtg?: number;
+  };
+}
+
+export interface MatchPredictionV2Response {
+  match_info: {
+    predicted_winner: string;
+    predicted_spread: number;
+    predicted_total_points: number;
+    home_score: number;
+    away_score: number;
+    win_probability_home: number;
+  };
+  home_players: PlayerFullPrediction[];
+  away_players: PlayerFullPrediction[];
+  context_analysis: {
+    home_fatigue_factors: string[];
+    away_fatigue_factors: string[];
   };
 }
 
@@ -526,6 +543,41 @@ export const nbaApi = {
     const queryString = params.toString() ? `?${params.toString()}` : "";
     const response = await fetch(`${API_BASE_URL}/predict/match/${homeTeamId}/${awayTeamId}${queryString}`);
     if (!response.ok) throw new Error("Failed to predict match");
+    return response.json();
+  },
+
+  async getMatchPredictionV2(
+    homeTeamId: string,
+    awayTeamId: string,
+    homeRest: number = 1,
+    awayRest: number = 1,
+    homeAbsentIds?: number[],
+    awayAbsentIds?: number[]
+  ): Promise<MatchPredictionV2Response> {
+    const params = new URLSearchParams();
+    params.append("home_rest", homeRest.toString());
+    params.append("away_rest", awayRest.toString());
+
+    if (homeAbsentIds && homeAbsentIds.length > 0) {
+      homeAbsentIds.forEach(id => params.append("home_absent", id.toString()));
+    }
+    if (awayAbsentIds && awayAbsentIds.length > 0) {
+      awayAbsentIds.forEach(id => params.append("away_absent", id.toString()));
+    }
+
+    const queryString = params.toString() ? `?${params.toString()}` : "";
+    const response = await fetch(
+      `${API_BASE_URL}/predict/full-match-v2/${homeTeamId}/${awayTeamId}${queryString}`
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+      if (errorData.error && errorData.error.includes("Cache non chargé")) {
+        throw new Error("CACHE_WARMING");
+      }
+      throw new Error(`Failed to predict match: ${errorData.error || response.statusText}`);
+    }
+
     return response.json();
   },
 

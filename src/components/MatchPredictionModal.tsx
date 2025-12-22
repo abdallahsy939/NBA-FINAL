@@ -29,7 +29,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest } from "@/services/nbaApi";
+import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest, MatchPredictionV2Response } from "@/services/nbaApi";
 import {
   Brain,
   Zap,
@@ -56,6 +56,13 @@ interface MatchPredictionModalProps {
 
 const getLogo = (id: string | undefined) =>
   id ? `https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg` : null;
+
+const getConfidenceLevel = (spread: number): string => {
+  const absSpread = Math.abs(spread);
+  if (absSpread < 2) return "Tight";
+  if (absSpread < 5) return "Solid";
+  return "Blowout";
+};
 
 export function MatchPredictionModal({
   open,
@@ -94,27 +101,65 @@ export function MatchPredictionModal({
     player.full_name.toLowerCase().includes(awaySearchQuery.toLowerCase())
   );
 
+  const [cacheWarming, setCacheWarming] = useState(false);
+
   const {
-    data: prediction,
+    data: v2Response,
     isLoading,
     refetch,
+    error,
   } = useQuery({
     queryKey: [
-      "match-prediction",
+      "match-prediction-v2",
       homeTeamId,
       awayTeamId,
       homeMissingPlayers.map((p) => p.id).join(","),
       awayMissingPlayers.map((p) => p.id).join(","),
     ],
-    queryFn: () =>
-      nbaApi.predictMatch(
-        homeTeamId,
-        awayTeamId,
-        homeMissingPlayers.map((p) => p.id),
-        awayMissingPlayers.map((p) => p.id)
-      ),
+    queryFn: async () => {
+      try {
+        return await nbaApi.getMatchPredictionV2(
+          homeTeamId,
+          awayTeamId,
+          1,
+          1,
+          homeMissingPlayers.map((p) => p.id),
+          awayMissingPlayers.map((p) => p.id)
+        );
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        if (errorMessage === "CACHE_WARMING") {
+          setCacheWarming(true);
+        }
+        throw err;
+      }
+    },
     enabled: open && !!homeTeamId && !!awayTeamId,
   });
+
+  // Transform V2 response to V1-compatible format for UI
+  const prediction = v2Response
+    ? {
+        predicted_winner: v2Response.match_info.predicted_winner,
+        predicted_margin: v2Response.match_info.predicted_spread,
+        win_probability_home: v2Response.match_info.win_probability_home,
+        predicted_total_points: v2Response.match_info.predicted_total_points,
+        confidence_level: getConfidenceLevel(v2Response.match_info.predicted_spread),
+        math_breakdown: {
+          base_spread: { value: v2Response.match_info.predicted_spread, desc: "Base team strength" },
+          fatigue_adjust: { value: 0, desc: "Fatigue impact" },
+          absences_adjust: { value: 0, desc: "Absence impact" },
+          final_spread: v2Response.match_info.predicted_spread,
+        },
+        context_analysis: {
+          home_fatigue_factors: v2Response.context_analysis.home_fatigue_factors,
+          away_fatigue_factors: v2Response.context_analysis.away_fatigue_factors,
+        },
+        details: {
+          spread_raw: v2Response.match_info.predicted_spread,
+        },
+      }
+    : null;
 
   const addHomeMissingPlayer = useCallback(
     (player: Player) => {
@@ -153,7 +198,7 @@ export function MatchPredictionModal({
   );
 
   const handleSaveMatch = useCallback(async () => {
-    if (!game) return;
+    if (!game || !v2Response) return;
 
     try {
       setIsSaving(true);
@@ -165,16 +210,6 @@ export function MatchPredictionModal({
         toast.error("Team IDs not available");
         return;
       }
-
-      const homeMissingPlayerIds = homeMissingPlayers.map((p) => p.id);
-      const awayMissingPlayerIds = awayMissingPlayers.map((p) => p.id);
-
-      const fullMatchData = await nbaApi.getFullMatchPredictionForSave(
-        homeTeamId,
-        awayTeamId,
-        homeMissingPlayerIds,
-        awayMissingPlayerIds
-      );
 
       const formatPlayerStats = (player: any): PlayerStatSave => {
         return {
@@ -198,9 +233,9 @@ export function MatchPredictionModal({
         home_team_id: homeTeamIdNum,
         away_team: game.awayTeam,
         away_team_id: awayTeamIdNum,
-        home_players: fullMatchData.home_players.map(formatPlayerStats),
-        away_players: fullMatchData.away_players.map(formatPlayerStats),
-        winner_prediction: prediction?.predicted_winner || game.homeTeam,
+        home_players: v2Response.home_players.map(formatPlayerStats),
+        away_players: v2Response.away_players.map(formatPlayerStats),
+        winner_prediction: v2Response.match_info.predicted_winner,
       };
 
       await nbaApi.saveMatchPrediction(saveRequest);
@@ -213,7 +248,7 @@ export function MatchPredictionModal({
     } finally {
       setIsSaving(false);
     }
-  }, [game, homeTeamId, awayTeamId, homeMissingPlayers, awayMissingPlayers, prediction]);
+  }, [game, v2Response]);
 
   const getConfidenceBadgeColor = (level: string | undefined | null) => {
     if (!level) return "bg-gray-500/20 text-gray-400 border-gray-500/30";
@@ -302,6 +337,28 @@ export function MatchPredictionModal({
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500 mx-auto"></div>
                   <p className="text-sm text-muted-foreground">Analyzing forecast...</p>
                 </div>
+              </div>
+            ) : cacheWarming ? (
+              <div className="flex items-center justify-center py-20">
+                <Card className="border-amber-500/50 bg-amber-950/30 max-w-md">
+                  <CardContent className="p-6 text-center space-y-4">
+                    <AlertCircle className="h-12 w-12 text-amber-400 mx-auto" />
+                    <h3 className="text-base font-semibold text-amber-300">System Cache is Warming Up</h3>
+                    <p className="text-sm text-amber-200/80">
+                      The prediction engine is initializing. Please wait 60 seconds and refresh the page.
+                    </p>
+                    <Button
+                      onClick={() => {
+                        setCacheWarming(false);
+                        refetch();
+                      }}
+                      size="sm"
+                      className="mt-4 bg-amber-600 hover:bg-amber-500 text-white"
+                    >
+                      Try Again
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
             ) : prediction ? (
               <div className="space-y-6">
