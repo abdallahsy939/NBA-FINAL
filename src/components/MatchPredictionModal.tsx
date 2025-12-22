@@ -94,27 +94,65 @@ export function MatchPredictionModal({
     player.full_name.toLowerCase().includes(awaySearchQuery.toLowerCase())
   );
 
+  const [cacheWarming, setCacheWarming] = useState(false);
+
   const {
-    data: prediction,
+    data: v2Response,
     isLoading,
     refetch,
+    error,
   } = useQuery({
     queryKey: [
-      "match-prediction",
+      "match-prediction-v2",
       homeTeamId,
       awayTeamId,
       homeMissingPlayers.map((p) => p.id).join(","),
       awayMissingPlayers.map((p) => p.id).join(","),
     ],
-    queryFn: () =>
-      nbaApi.predictMatch(
-        homeTeamId,
-        awayTeamId,
-        homeMissingPlayers.map((p) => p.id),
-        awayMissingPlayers.map((p) => p.id)
-      ),
+    queryFn: async () => {
+      try {
+        return await nbaApi.getMatchPredictionV2(
+          homeTeamId,
+          awayTeamId,
+          1,
+          1,
+          homeMissingPlayers.map((p) => p.id),
+          awayMissingPlayers.map((p) => p.id)
+        );
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        if (errorMessage === "CACHE_WARMING") {
+          setCacheWarming(true);
+        }
+        throw err;
+      }
+    },
     enabled: open && !!homeTeamId && !!awayTeamId,
   });
+
+  // Transform V2 response to V1-compatible format for UI
+  const prediction = v2Response
+    ? {
+        predicted_winner: v2Response.match_info.predicted_winner,
+        predicted_margin: v2Response.match_info.predicted_spread,
+        win_probability_home: v2Response.match_info.win_probability_home,
+        predicted_total_points: v2Response.match_info.predicted_total_points,
+        confidence_level: getConfidenceLevel(v2Response.match_info.predicted_spread),
+        math_breakdown: {
+          base_spread: { value: v2Response.match_info.predicted_spread, desc: "Base team strength" },
+          fatigue_adjust: { value: 0, desc: "Fatigue impact" },
+          absences_adjust: { value: 0, desc: "Absence impact" },
+          final_spread: v2Response.match_info.predicted_spread,
+        },
+        context_analysis: {
+          home_fatigue_factors: v2Response.context_analysis.home_fatigue_factors,
+          away_fatigue_factors: v2Response.context_analysis.away_fatigue_factors,
+        },
+        details: {
+          spread_raw: v2Response.match_info.predicted_spread,
+        },
+      }
+    : null;
 
   const addHomeMissingPlayer = useCallback(
     (player: Player) => {
