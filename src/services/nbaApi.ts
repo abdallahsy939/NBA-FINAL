@@ -99,23 +99,40 @@ export interface MatchPrediction {
   win_probability_home: number;
   predicted_total_points: number;
   confidence_level?: string;
-  
+
   math_breakdown: {
     base_spread: { value: number; desc: string };
     fatigue_adjust: { value: number; desc: string };
     absences_adjust: { value: number; desc: string };
     final_spread: number;
   };
-  
+
   context_analysis: {
     home_fatigue_factors: string[];
     away_fatigue_factors: string[];
   };
-  
+
   details: {
     spread_raw: number;
     home_net_rtg?: number;
     away_net_rtg?: number;
+  };
+}
+
+export interface MatchPredictionV2Response {
+  match_info: {
+    predicted_winner: string;
+    predicted_spread: number;
+    predicted_total_points: number;
+    home_score: number;
+    away_score: number;
+    win_probability_home: number;
+  };
+  home_players: PlayerFullPrediction[];
+  away_players: PlayerFullPrediction[];
+  context_analysis: {
+    home_fatigue_factors: string[];
+    away_fatigue_factors: string[];
   };
 }
 
