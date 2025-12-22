@@ -29,7 +29,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest, MatchPredictionV2Response } from "@/services/nbaApi";
+import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest, MatchPrediction } from "@/services/nbaApi";
 import {
   Brain,
   Zap,
