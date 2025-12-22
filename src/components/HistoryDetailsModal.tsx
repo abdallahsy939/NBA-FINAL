@@ -45,40 +45,52 @@ interface StatCellProps {
   isFinished: boolean;
 }
 
+function getStatColor(stat: string) {
+  switch (stat) {
+    case "PTS":
+      return { bg: "bg-amber-950/40", text: "text-amber-400", border: "border-amber-500/30", label: "text-amber-300" };
+    case "REB":
+      return { bg: "bg-emerald-950/40", text: "text-emerald-400", border: "border-emerald-500/30", label: "text-emerald-300" };
+    case "AST":
+      return { bg: "bg-cyan-950/40", text: "text-cyan-400", border: "border-cyan-500/30", label: "text-cyan-300" };
+    case "PRA":
+      return { bg: "bg-purple-950/40", text: "text-purple-400", border: "border-purple-500/30", label: "text-purple-300" };
+    default:
+      return { bg: "bg-blue-950/40", text: "text-blue-400", border: "border-blue-500/30", label: "text-blue-300" };
+  }
+}
+
 function StatCell({ stat, projected, real, isFinished }: StatCellProps) {
   const displayReal = real !== null && real !== undefined;
   const isPending = !isFinished || real === null || real === undefined;
+  const statColor = getStatColor(stat);
 
   let realColor = "";
-  let backgroundColor = "";
+  let backgroundColor = statColor.bg;
 
   if (displayReal && !isPending) {
     const diff = real - projected;
     if (diff > 0) {
-      realColor = "text-emerald-400"; // Over hit - Green
-      backgroundColor = "bg-emerald-950/30";
+      realColor = "text-emerald-300"; // Over hit - Green
+      backgroundColor = "bg-emerald-950/50 border border-emerald-500/40";
     } else if (diff < 0) {
-      realColor = "text-red-400"; // Under hit - Red
-      backgroundColor = "bg-red-950/30";
+      realColor = "text-red-300"; // Under hit - Red
+      backgroundColor = "bg-red-950/50 border border-red-500/40";
     } else {
-      realColor = "text-cyan-400"; // Perfect match
-      backgroundColor = "bg-cyan-950/30";
+      realColor = "text-yellow-300"; // Perfect match
+      backgroundColor = "bg-yellow-950/50 border border-yellow-500/40";
     }
-
-    // Optional: Highlight if very accurate (diff < 10%)
-    const accuracyPercent = Math.abs(diff) / Math.max(projected, 1);
-    if (accuracyPercent < 0.1) {
-      backgroundColor = "bg-blue-950/40 border border-blue-500/30";
-    }
+  } else if (!isPending) {
+    backgroundColor = `${statColor.bg} border ${statColor.border}`;
   }
 
   return (
     <div className={`flex flex-col items-center gap-1 p-2 rounded-lg ${backgroundColor}`}>
-      <p className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">
+      <p className={`text-[10px] font-semibold uppercase ${statColor.label} tracking-wider`}>
         {stat}
       </p>
       <div className="flex flex-col items-center gap-0.5 w-full">
-        <p className="text-xs text-slate-400">
+        <p className={`text-xs ${statColor.text} font-medium`}>
           {projected.toFixed(stat === "PTS" || stat === "PRA" ? 1 : 1)}
         </p>
         {isFinished ? (
@@ -135,11 +147,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
       <div className="grid grid-cols-4 gap-2 p-4 bg-slate-800/30">
         {/* PTS Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            PTS
+          <div className="text-[10px] font-bold uppercase text-amber-400 mb-2 text-center tracking-wider bg-amber-950/30 py-1.5 rounded-md border border-amber-500/20">
+            🏀 PTS
           </div>
           <StatCell
-            stat="Proj"
+            stat="PTS"
             projected={projStats.PTS}
             real={realStats?.PTS ?? null}
             isFinished={isFinished}
@@ -150,7 +162,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.PTS > projStats.PTS ? "text-emerald-400" :
                 realStats && realStats.PTS < projStats.PTS ? "text-red-400" :
-                "text-slate-400"
+                "text-amber-300"
               }`}>
                 {realStats ? realStats.PTS.toFixed(0) : "-"}
               </p>
@@ -160,11 +172,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
 
         {/* REB Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            REB
+          <div className="text-[10px] font-bold uppercase text-emerald-400 mb-2 text-center tracking-wider bg-emerald-950/30 py-1.5 rounded-md border border-emerald-500/20">
+            📦 REB
           </div>
           <StatCell
-            stat="Proj"
+            stat="REB"
             projected={projStats.REB}
             real={realStats?.REB ?? null}
             isFinished={isFinished}
@@ -175,7 +187,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.REB > projStats.REB ? "text-emerald-400" :
                 realStats && realStats.REB < projStats.REB ? "text-red-400" :
-                "text-slate-400"
+                "text-emerald-300"
               }`}>
                 {realStats ? realStats.REB.toFixed(0) : "-"}
               </p>
@@ -185,11 +197,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
 
         {/* AST Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            AST
+          <div className="text-[10px] font-bold uppercase text-cyan-400 mb-2 text-center tracking-wider bg-cyan-950/30 py-1.5 rounded-md border border-cyan-500/20">
+            🎯 AST
           </div>
           <StatCell
-            stat="Proj"
+            stat="AST"
             projected={projStats.AST}
             real={realStats?.AST ?? null}
             isFinished={isFinished}
@@ -200,7 +212,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.AST > projStats.AST ? "text-emerald-400" :
                 realStats && realStats.AST < projStats.AST ? "text-red-400" :
-                "text-slate-400"
+                "text-cyan-300"
               }`}>
                 {realStats ? realStats.AST.toFixed(0) : "-"}
               </p>
@@ -210,11 +222,11 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
 
         {/* PRA Column */}
         <div>
-          <div className="text-[10px] font-bold uppercase text-slate-500 mb-2 text-center">
-            PRA
+          <div className="text-[10px] font-bold uppercase text-purple-400 mb-2 text-center tracking-wider bg-purple-950/30 py-1.5 rounded-md border border-purple-500/20">
+            ✨ PRA
           </div>
           <StatCell
-            stat="Proj"
+            stat="PRA"
             projected={projStats.PRA}
             real={realStats?.PRA ?? null}
             isFinished={isFinished}
@@ -225,7 +237,7 @@ function PlayerRow({ player, isFinished }: PlayerRowProps) {
               <p className={`text-xs font-bold ${
                 realStats && realStats.PRA > projStats.PRA ? "text-emerald-400" :
                 realStats && realStats.PRA < projStats.PRA ? "text-red-400" :
-                "text-slate-400"
+                "text-purple-300"
               }`}>
                 {realStats ? realStats.PRA.toFixed(0) : "-"}
               </p>

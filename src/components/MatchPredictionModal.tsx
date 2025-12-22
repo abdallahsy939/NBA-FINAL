@@ -278,21 +278,23 @@ export function MatchPredictionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* 1. RÉDUCTION DE LA TAILLE ICI (max-w-[850px] et max-h-[85vh]) */}
-      <DialogContent className="sm:max-w-[850px] max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0">
-        
+      <DialogContent className="sm:max-w-[850px] max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-blue-500/20">
+
         {/* Header - Padding réduit */}
-        <DialogHeader className="border-b border-blue-500/20 px-6 py-3 bg-gradient-to-r from-slate-900 to-slate-800 flex-shrink-0">
-          <DialogTitle className="flex items-center gap-2 text-base">
-            <Brain className="h-5 w-5 text-purple-400" />
-            <span className="text-foreground">Match Analysis</span>
-            <span className="text-muted-foreground text-sm font-normal ml-auto">
+        <DialogHeader className="border-b border-blue-500/20 px-6 py-4 bg-gradient-to-r from-slate-900/80 via-purple-950/30 to-slate-800/80 backdrop-blur-sm flex-shrink-0">
+          <DialogTitle className="flex items-center gap-3 text-base">
+            <div className="p-1.5 rounded-lg bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-500/30">
+              <Brain className="h-5 w-5 text-purple-300" />
+            </div>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-blue-300 font-semibold">Match Analysis</span>
+            <span className="text-blue-300/70 text-sm font-normal ml-auto">
               {game?.awayTeam} @ {game?.homeTeam}
             </span>
           </DialogTitle>
         </DialogHeader>
 
         {/* Content - Scroll Natif et Padding réduit (p-4) */}
-        <div className="flex-1 overflow-y-auto min-h-0 bg-background/50">
+        <div className="flex-1 overflow-y-auto min-h-0 bg-gradient-to-b from-slate-900/50 to-slate-950/50">
           <div className="p-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -410,9 +412,9 @@ export function MatchPredictionModal({
 
                 {/* ============ SECTION 2: KEY METRICS ============ */}
                 <div className="grid grid-cols-3 gap-3">
-                  <Card className="border-blue-500/20 bg-blue-950/30">
+                  <Card className="border-purple-500/30 bg-gradient-to-br from-purple-950/40 to-purple-900/20 hover:border-purple-500/50 transition-colors">
                     <CardContent className="p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">
+                      <p className="text-[10px] uppercase tracking-widest text-purple-300/70 font-bold mb-1">
                         Confidence
                       </p>
                       <Badge
@@ -425,26 +427,26 @@ export function MatchPredictionModal({
                     </CardContent>
                   </Card>
 
-                  <Card className="border-blue-500/20 bg-blue-950/30">
+                  <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-cyan-900/20 hover:border-cyan-500/50 transition-colors">
                     <CardContent className="p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">
+                      <p className="text-[10px] uppercase tracking-widest text-cyan-300/70 font-bold mb-1">
                         Projected Total
                       </p>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-xl font-black text-cyan-400">
+                        <span className="text-xl font-black text-cyan-300">
                           {(prediction?.predicted_total_points || 0).toFixed(0)}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">pts</span>
+                        <span className="text-[10px] text-cyan-400/50">pts</span>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="border-blue-500/20 bg-blue-950/30">
+                  <Card className="border-amber-500/30 bg-gradient-to-br from-amber-950/40 to-amber-900/20 hover:border-amber-500/50 transition-colors">
                     <CardContent className="p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">
+                      <p className="text-[10px] uppercase tracking-widest text-amber-300/70 font-bold mb-1">
                         Simulation
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-amber-300/80 font-semibold">
                         {homeMissingPlayers.length + awayMissingPlayers.length} absence{homeMissingPlayers.length + awayMissingPlayers.length !== 1 ? "s" : ""}
                       </p>
                     </CardContent>
@@ -472,9 +474,9 @@ export function MatchPredictionModal({
 
                 {/* ============ SECTION 4: MATH BREAKDOWN ============ */}
                 {prediction.math_breakdown && (
-                  <Card className="border-blue-500/20">
+                  <Card className="border-yellow-500/30 bg-gradient-to-br from-yellow-950/20 to-slate-900/30">
                     <CardHeader className="pb-2 pt-3 px-4">
-                      <CardTitle className="text-xs flex items-center gap-2">
+                      <CardTitle className="text-xs flex items-center gap-2 text-yellow-300">
                         <Zap className="h-3.5 w-3.5 text-yellow-400" />
                         Impact Analysis
                       </CardTitle>
@@ -588,9 +590,9 @@ export function MatchPredictionModal({
 
                 {/* ============ SECTION 5: CONTEXT & FATIGUE ============ */}
                 {prediction.context_analysis && (
-                  <Card className="border-blue-500/20">
+                  <Card className="border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 to-slate-900/30">
                     <CardHeader className="pb-2 pt-3 px-4">
-                      <CardTitle className="text-xs">Context Analysis</CardTitle>
+                      <CardTitle className="text-xs text-emerald-300">Context Analysis</CardTitle>
                     </CardHeader>
                     <CardContent className="px-4 pb-4">
                       <div className="grid grid-cols-2 gap-3">
@@ -612,9 +614,9 @@ export function MatchPredictionModal({
                 )}
 
                 {/* ============ SECTION 6: SIMULATION CONTROL ============ */}
-                <Card className="border-blue-500/20">
+                <Card className="border-blue-500/30 bg-gradient-to-br from-blue-950/20 to-slate-900/30">
                   <CardHeader className="pb-2 pt-3 px-4">
-                    <CardTitle className="text-xs">Simulation Control</CardTitle>
+                    <CardTitle className="text-xs text-blue-300">Simulation Control</CardTitle>
                   </CardHeader>
                   <CardContent className="px-4 pb-4 space-y-4">
                     <div className="grid grid-cols-2 gap-3">
@@ -849,12 +851,12 @@ export function MatchPredictionModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-blue-500/20 px-6 py-4 bg-slate-900 flex gap-3 flex-shrink-0">
+        <div className="border-t border-blue-500/20 px-6 py-4 bg-gradient-to-r from-slate-900 to-slate-800 flex gap-3 flex-shrink-0">
           <Button
             onClick={() => refetch()}
             variant="outline"
             size="sm"
-            className="flex-1 border-blue-500/30 hover:bg-blue-500/10"
+            className="flex-1 border-blue-500/30 hover:bg-blue-500/20 text-blue-300 hover:text-blue-200 font-semibold transition-colors"
             disabled={isSaving}
           >
             <Zap className="h-3.5 w-3.5 mr-2" />
@@ -864,7 +866,7 @@ export function MatchPredictionModal({
             onClick={handleSaveMatch}
             size="sm"
             disabled={isSaving || !prediction}
-            className="flex-1 bg-gradient-to-r from-emerald-600/80 to-green-600/80 hover:from-emerald-500 hover:to-green-500 text-white border-0"
+            className="flex-1 bg-gradient-to-r from-emerald-600/80 to-green-600/80 hover:from-emerald-500 hover:to-green-500 text-white border-0 font-semibold transition-all"
           >
             <BookmarkCheck className="h-3.5 w-3.5 mr-2" />
             {isSaving ? "Saving..." : "Save Analysis"}
@@ -873,7 +875,7 @@ export function MatchPredictionModal({
             onClick={() => onOpenChange(false)}
             size="sm"
             disabled={isSaving}
-            className="flex-1 bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500"
+            className="flex-1 bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-500 hover:to-blue-500 text-white font-semibold transition-all"
           >
             Close
             <ChevronRight className="h-3.5 w-3.5 ml-2" />

@@ -207,6 +207,21 @@ export function PlayerDetailsModal({
                       {player.position}
                     </Badge>
                   )}
+                  {player.archetype && (
+                    <Badge className={`text-sm font-bold px-3 py-1 border ${
+                      player.archetype.type.toLowerCase().includes("sniper")
+                        ? "bg-blue-500/30 text-blue-200 border-blue-500/50"
+                        : player.archetype.type.toLowerCase().includes("slasher")
+                          ? "bg-red-500/30 text-red-200 border-red-500/50"
+                          : "bg-cyan-500/30 text-cyan-200 border-cyan-500/50"
+                    }`}>
+                      {player.archetype.type.toLowerCase().includes("sniper")
+                        ? "🎯 Sniper"
+                        : player.archetype.type.toLowerCase().includes("slasher")
+                          ? "⚡ Slasher"
+                          : "🏀 Standard"}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
@@ -226,17 +241,19 @@ export function PlayerDetailsModal({
                 </Avatar>
               </div>
               {player.matchup_analysis?.description && (
-                <Badge
-                  className={`text-xs font-bold px-3 py-1 ${
-                    player.matchup_analysis.description.startsWith("🔴")
-                      ? "bg-red-500/20 text-red-200 border-red-500/30"
-                      : player.matchup_analysis.description.startsWith("🟢")
-                        ? "bg-emerald-500/20 text-emerald-200 border-emerald-500/30"
-                        : "bg-amber-500/20 text-amber-200 border-amber-500/30"
-                  }`}
-                >
-                  {player.matchup_analysis.description}
-                </Badge>
+                <div className="text-right">
+                  <Badge
+                    className={`text-xs font-bold px-4 py-1.5 border-2 ${
+                      player.matchup_analysis.description.includes("🔴")
+                        ? "bg-red-950/40 text-red-200 border-red-500/50 shadow-lg shadow-red-500/20"
+                        : player.matchup_analysis.description.includes("🟢")
+                          ? "bg-emerald-950/40 text-emerald-200 border-emerald-500/50 shadow-lg shadow-emerald-500/20"
+                          : "bg-amber-950/40 text-amber-200 border-amber-500/50 shadow-lg shadow-amber-500/20"
+                    }`}
+                  >
+                    {player.matchup_analysis.description}
+                  </Badge>
+                </div>
               )}
             </div>
           </div>
