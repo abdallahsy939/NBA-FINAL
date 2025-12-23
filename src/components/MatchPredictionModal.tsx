@@ -28,8 +28,16 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest, MatchPrediction } from "@/services/nbaApi";
+import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest, MatchPrediction, PlayerFullPrediction, InteractiveMatchPrediction } from "@/services/nbaApi";
 import {
   Brain,
   Zap,
@@ -46,6 +54,7 @@ import {
 } from "@/lib/fatigueUtils";
 import { BlowoutBar } from "@/components/BlowoutBar";
 import { ShootingBattleCard } from "@/components/ShootingBattleCard";
+import { PlayerDetailsModal } from "@/components/PlayerDetailsModal";
 import { toast } from "sonner";
 
 interface MatchPredictionModalProps {
@@ -77,6 +86,9 @@ export function MatchPredictionModal({
   const [awayPopoverOpen, setAwayPopoverOpen] = useState(false);
   const [failedLogos, setFailedLogos] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerFullPrediction | null>(null);
+  const [playerModalOpen, setPlayerModalOpen] = useState(false);
+  const [modalTeam, setModalTeam] = useState<"home" | "away">("home");
 
   const homeTeamId = game ? getTeamCode(game.homeTeam) : "";
   const awayTeamId = game ? getTeamCode(game.awayTeam) : "";
@@ -101,6 +113,7 @@ export function MatchPredictionModal({
     player.full_name.toLowerCase().includes(awaySearchQuery.toLowerCase())
   );
 
+  // Fetch match prediction (for main analysis: winner, spread, confidence)
   const {
     data: prediction,
     isLoading,
@@ -124,6 +137,35 @@ export function MatchPredictionModal({
     },
     enabled: open && !!homeTeamId && !!awayTeamId,
   });
+
+  // Fetch full match prediction with player data (for player projections in list)
+  const { data: fullPrediction } = useQuery({
+    queryKey: [
+      "full-match-prediction",
+      homeTeamId,
+      awayTeamId,
+      homeMissingPlayers.map((p) => p.id).join(","),
+      awayMissingPlayers.map((p) => p.id).join(","),
+    ],
+    queryFn: async () => {
+      return await nbaApi.getFullMatchPredictionWithAbsents(
+        homeTeamId,
+        awayTeamId,
+        homeMissingPlayers.map((p) => p.id),
+        awayMissingPlayers.map((p) => p.id)
+      );
+    },
+    enabled: open && !!homeTeamId && !!awayTeamId,
+  });
+
+  const handlePlayerClick = useCallback(
+    (player: PlayerFullPrediction, team: "home" | "away") => {
+      setSelectedPlayer(player);
+      setModalTeam(team);
+      setPlayerModalOpen(true);
+    },
+    []
+  );
 
   const addHomeMissingPlayer = useCallback(
     (player: Player) => {
