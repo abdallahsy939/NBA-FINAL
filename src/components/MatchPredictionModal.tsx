@@ -158,6 +158,15 @@ export function MatchPredictionModal({
     enabled: open && !!homeTeamId && !!awayTeamId,
   });
 
+  const handlePlayerClick = useCallback(
+    (player: PlayerFullPrediction, team: "home" | "away") => {
+      setSelectedPlayer(player);
+      setModalTeam(team);
+      setPlayerModalOpen(true);
+    },
+    []
+  );
+
   const addHomeMissingPlayer = useCallback(
     (player: Player) => {
       if (!homeMissingPlayers.find((p) => p.id === player.id)) {
