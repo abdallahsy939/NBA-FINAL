@@ -113,6 +113,7 @@ export function MatchPredictionModal({
     player.full_name.toLowerCase().includes(awaySearchQuery.toLowerCase())
   );
 
+  // Fetch match prediction (for main analysis: winner, spread, confidence)
   const {
     data: prediction,
     isLoading,
@@ -128,6 +129,26 @@ export function MatchPredictionModal({
     ],
     queryFn: async () => {
       return await nbaApi.predictMatch(
+        homeTeamId,
+        awayTeamId,
+        homeMissingPlayers.map((p) => p.id),
+        awayMissingPlayers.map((p) => p.id)
+      );
+    },
+    enabled: open && !!homeTeamId && !!awayTeamId,
+  });
+
+  // Fetch full match prediction with player data (for player projections in list)
+  const { data: fullPrediction } = useQuery({
+    queryKey: [
+      "full-match-prediction",
+      homeTeamId,
+      awayTeamId,
+      homeMissingPlayers.map((p) => p.id).join(","),
+      awayMissingPlayers.map((p) => p.id).join(","),
+    ],
+    queryFn: async () => {
+      return await nbaApi.getFullMatchPredictionWithAbsents(
         homeTeamId,
         awayTeamId,
         homeMissingPlayers.map((p) => p.id),
