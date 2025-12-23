@@ -28,8 +28,16 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest, MatchPrediction } from "@/services/nbaApi";
+import { nbaApi, TodayGame, Player, PlayerStatSave, MatchSaveRequest, MatchPrediction, PlayerFullPrediction, InteractiveMatchPrediction } from "@/services/nbaApi";
 import {
   Brain,
   Zap,
@@ -46,6 +54,7 @@ import {
 } from "@/lib/fatigueUtils";
 import { BlowoutBar } from "@/components/BlowoutBar";
 import { ShootingBattleCard } from "@/components/ShootingBattleCard";
+import { PlayerDetailsModal } from "@/components/PlayerDetailsModal";
 import { toast } from "sonner";
 
 interface MatchPredictionModalProps {
