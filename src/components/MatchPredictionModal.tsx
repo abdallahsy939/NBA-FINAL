@@ -86,6 +86,9 @@ export function MatchPredictionModal({
   const [awayPopoverOpen, setAwayPopoverOpen] = useState(false);
   const [failedLogos, setFailedLogos] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerFullPrediction | null>(null);
+  const [playerModalOpen, setPlayerModalOpen] = useState(false);
+  const [modalTeam, setModalTeam] = useState<"home" | "away">("home");
 
   const homeTeamId = game ? getTeamCode(game.homeTeam) : "";
   const awayTeamId = game ? getTeamCode(game.awayTeam) : "";
